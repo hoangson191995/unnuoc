@@ -119,6 +119,30 @@
             background-color: #FFF0F5;
         }
 
+        .btn-reset {
+            background-color: transparent;
+            color: #DB7093;
+            border: 1px dashed #FFB6C1;
+            border-radius: 15px;
+            padding: 9px 15px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-reset:hover {
+            background-color: #FFE4E1;
+            color: #C71585;
+            border-style: solid;
+        }
+
         /* CSS chung cho Popup / Modal */
         .modal-overlay {
             display: none;
@@ -267,6 +291,7 @@
         </div>
 
         <button class="btn-history" onclick="openHistory()">📅 Coi lại ngày cũ của bà chã</button>
+        <button class="btn-reset" onclick="resetWater()">🔄 Đặt lại hôm nay về 0 ml</button>
     </div>
 
     <!-- Popup Thống kê lịch sử -->
@@ -402,6 +427,35 @@
             } catch (error) {
                 console.error("Lỗi lấy lịch sử:", error);
                 listEl.innerHTML = `<li class="history-item">Không tải được lịch sử (${error.message})!</li>`;
+            }
+        }
+
+        // Đặt lại lượng nước hôm nay về 0
+        async function resetWater() {
+            const confirmed = confirm("Bà chã có chắc muốn đặt lại thanh tiến độ hôm nay về 0 ml không? 🌸");
+            if (!confirmed) return;
+
+            const resetBtn = document.querySelector('.btn-reset');
+            if (resetBtn) resetBtn.style.opacity = '0.6';
+
+            try {
+                let response = await fetch(`${API_URL}/reset`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                let data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Lỗi từ máy chủ: ' + response.status);
+                }
+
+                updateUI(0);
+                alert("Đã đặt lại thanh tiến độ về 0 ml rùi nha! 💧");
+            } catch (error) {
+                console.error("Lỗi khi reset:", error);
+                alert("Không thể đặt lại:\n" + (error.message || "Mạng lỗi rồi bà chã ơi!"));
+            } finally {
+                if (resetBtn) resetBtn.style.opacity = '1';
             }
         }
 

@@ -90,6 +90,28 @@ app.post('/api/water/add', async (req, res) => {
     }
 });
 
+// API đặt lại (reset) lượng nước ngày hôm nay về 0
+app.post('/api/water/reset', async (req, res) => {
+    try {
+        const todayStr = new Date().toLocaleDateString('vi-VN');
+        let record = await DayWater.findOne({ dateString: todayStr });
+
+        if (!record) {
+            record = new DayWater({ dateString: todayStr, amount: 0 });
+        } else {
+            record.amount = 0;
+            record.checked1300 = false;
+            record.checked1500 = false;
+            record.checked2000 = false;
+        }
+
+        await record.save();
+        res.status(200).json({ message: "Đã đặt lại về 0 ml thành công!", record });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // API lấy toàn bộ lịch sử các ngày (cho nút "Coi lại ngày cũ")
 app.get('/api/water/history', async (req, res) => {
     try {
