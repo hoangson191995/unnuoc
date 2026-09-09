@@ -291,7 +291,10 @@
     </div>
 
     <script>
-        const API_URL = 'https://unnuoc.onrender.com/api/water';
+        // Tự động dùng /api/water nếu đang mở trên Render, hoặc trỏ đến Render nếu mở từ GitHub Pages hay Local
+        const API_URL = (window.location.origin.includes('onrender.com')) 
+            ? '/api/water' 
+            : 'https://unnuoc.onrender.com/api/water';
         const targetWater = 2000;
 
         const todayStr = new Date().toLocaleDateString('vi-VN');
@@ -311,6 +314,9 @@
             try {
                 let response = await fetch(`${API_URL}/today`);
                 let data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Lỗi server: ' + response.status);
+                }
                 updateUI(data.amount);
             } catch (error) {
                 console.error("Lỗi kết nối server:", error);
@@ -318,7 +324,13 @@
         }
 
         // Gửi lượng nước khi bấm nút
+        let isSubmitting = false;
         async function addWater(amount) {
+            if (isSubmitting) return;
+            isSubmitting = true;
+            const buttons = document.querySelectorAll('.btn-group .btn');
+            buttons.forEach(btn => btn.style.opacity = '0.6');
+
             try {
                 let response = await fetch(`${API_URL}/add`, {
                     method: 'POST',
@@ -327,7 +339,11 @@
                 });
                 let data = await response.json();
 
-                // Kiểm tra an toàn trước khi cập nhật UI để tránh lỗi undefined
+                if (!response.ok) {
+                    throw new Error(data.error || 'Lỗi từ máy chủ: ' + response.status);
+                }
+
+                // Kiểm tra an toàn trước khi cập nhật UI
                 if (data && data.record) {
                     updateUI(data.record.amount);
                 }
@@ -338,7 +354,10 @@
                 }
             } catch (error) {
                 console.error("Lỗi gửi dữ liệu:", error);
-                alert("Mạng lỗi rồi bà chã ơi!");
+                alert("Lỗi kết nối máy chủ:\n" + (error.message || "Mạng lỗi rồi bà chã ơi!"));
+            } finally {
+                isSubmitting = false;
+                buttons.forEach(btn => btn.style.opacity = '1');
             }
         }
 
@@ -362,6 +381,10 @@
                 let response = await fetch(`${API_URL}/history`);
                 let historyData = await response.json();
 
+                if (!response.ok) {
+                    throw new Error(historyData.error || 'Lỗi server: ' + response.status);
+                }
+
                 listEl.innerHTML = '';
                 if (!historyData || historyData.length === 0) {
                     listEl.innerHTML = '<li class="history-item">Chưa có dữ liệu nào nè!</li>';
@@ -378,7 +401,7 @@
                 }
             } catch (error) {
                 console.error("Lỗi lấy lịch sử:", error);
-                listEl.innerHTML = '<li class="history-item">Không tải được lịch sử rùi!</li>';
+                listEl.innerHTML = `<li class="history-item">Không tải được lịch sử (${error.message})!</li>`;
             }
         }
 

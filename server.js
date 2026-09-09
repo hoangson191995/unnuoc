@@ -1,16 +1,30 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Phục vụ giao diện web trực tiếp từ server
+app.use(express.static(__dirname));
+
+// Kiểm tra biến môi trường
+if (!process.env.MONGODB_URI) {
+    console.error("❌ CẢNH BÁO: Chưa tìm thấy biến môi trường MONGODB_URI! Hãy kiểm tra file .env hoặc cấu hình trên Render.");
+}
+
 // Kết nối MongoDB
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log("Đã kết nối Database thành công! 🌸"))
-    .catch(err => console.log("Lỗi kết nối DB:", err));
+    .catch(err => console.log("Lỗi kết nối DB:", err.message));
+
+// Route trang chủ hiển thị index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // --- 1. KHAI BÁO SCHEMA THEO NGÀY ---
 const dayWaterSchema = new mongoose.Schema({
