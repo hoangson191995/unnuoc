@@ -225,6 +225,95 @@
             transform: scale(0.94);
         }
 
+        /* Ô nhập ghi chú món uống ngoài nước lọc */
+        .note-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .note-input {
+            font-size: 13px;
+            border-style: dashed;
+        }
+
+        .note-input::placeholder {
+            font-size: 12px;
+            color: #C71585;
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        .btn-note-save {
+            background-color: #FFAEC9;
+            border: none;
+            border-radius: 18px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #8B0046;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 3px 5px rgba(255, 174, 201, 0.4);
+            white-space: nowrap;
+        }
+
+        .btn-note-save:hover {
+            background-color: #FF85A2;
+            color: white;
+        }
+
+        .btn-note-save:active {
+            transform: scale(0.94);
+        }
+
+        /* Danh sách món uống đã ghi trong ngày */
+        .today-notes-section {
+            background-color: #FFF5F7;
+            border: 1px dashed #FFB6C1;
+            border-radius: 15px;
+            padding: 10px 12px;
+            margin-bottom: 16px;
+            text-align: left;
+            font-size: 12px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .today-notes-title {
+            color: #DB7093;
+            font-weight: bold;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .today-notes-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .note-badge {
+            background: #FFE4E1;
+            color: #C71585;
+            padding: 3px 9px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        /* Ghi chú trong popup lịch sử */
+        .history-notes {
+            font-size: 12px;
+            color: #DB7093;
+            font-style: italic;
+            margin-top: 3px;
+        }
+
         .btn-history {
             background-color: transparent;
             color: #FF69B4;
@@ -429,6 +518,18 @@
             <button class="btn-custom-add" onclick="addCustomWater()">+ Uống</button>
         </div>
 
+        <!-- Ô nhập ghi chú món uống ngoài nước lọc -->
+        <div class="note-input-group">
+            <input type="text" id="drinkNoteInput" class="custom-input note-input" placeholder="Ún gì ngoài nước lọc thì ghi zo đây cho tui bít" onkeydown="if(event.key==='Enter') saveDrinkNote()" />
+            <button class="btn-note-save" onclick="saveDrinkNote()" title="Lưu ghi chú">📝 Lưu</button>
+        </div>
+
+        <!-- Danh sách món đã uống hôm nay -->
+        <div class="today-notes-section" id="todayNotesSection" style="display: none;">
+            <div class="today-notes-title">🍹 Món ngoài nước lọc hôm nay:</div>
+            <div class="today-notes-list" id="todayNotesList"></div>
+        </div>
+
         <button class="btn-history" onclick="openHistory()">📅 Coi lại ngày cũ của bà chã</button>
         <button class="btn-reset" onclick="resetWater()">🔄 Đặt lại hôm nay về 0 ml</button>
     </div>
@@ -510,6 +611,9 @@
                     document.getElementById('displayDate').innerText = `Hôm nay: ${data.dateString} 🌸`;
                 }
                 updateUI(data.amount);
+                if (data && data.notes) {
+                    renderTodayNotes(data.notes);
+                }
             } catch (error) {
                 console.error("Lỗi kết nối server:", error);
             }
@@ -520,14 +624,17 @@
         async function addWater(amount) {
             if (isSubmitting) return;
             isSubmitting = true;
-            const buttons = document.querySelectorAll('.btn-group .btn, .btn-custom-add');
+            const buttons = document.querySelectorAll('.btn-group .btn, .btn-custom-add, .btn-note-save');
             buttons.forEach(btn => btn.style.opacity = '0.6');
+
+            const noteInput = document.getElementById('drinkNoteInput');
+            const noteText = noteInput ? noteInput.value.trim() : '';
 
             try {
                 let response = await fetch(`${API_URL}/add`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount })
+                    body: JSON.stringify({ amount, note: noteText })
                 });
                 let data = await response.json();
 
@@ -538,11 +645,18 @@
                 // Kiểm tra an toàn trước khi cập nhật UI
                 if (data && data.record) {
                     updateUI(data.record.amount);
+                    if (data.record.notes) {
+                        renderTodayNotes(data.record.notes);
+                    }
                 }
 
                 // Nếu đạt mốc mới thì hiện Popup chúc mừng từ Server
                 if (data && data.milestoneReached) {
                     showAchievement(data.milestoneReached.title, data.milestoneReached.desc);
+                }
+
+                if (noteInput && noteText) {
+                    noteInput.value = '';
                 }
             } catch (error) {
                 console.error("Lỗi gửi dữ liệu:", error);
@@ -576,6 +690,70 @@
             inputEl.blur();
         }
 
+        // Lưu ghi chú món uống riêng
+        async function saveDrinkNote() {
+            const noteInput = document.getElementById('drinkNoteInput');
+            if (!noteInput) return;
+            const text = noteInput.value.trim();
+
+            if (!text) {
+                alert("Bà chã chưa ghi món gì nè! 🌸");
+                noteInput.focus();
+                return;
+            }
+
+            const saveBtn = document.querySelector('.btn-note-save');
+            if (saveBtn) saveBtn.style.opacity = '0.6';
+
+            try {
+                let response = await fetch(`${API_URL}/note`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ note: text })
+                });
+                let data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Lỗi server: ' + response.status);
+                }
+
+                if (data && data.record && data.record.notes) {
+                    renderTodayNotes(data.record.notes);
+                }
+                noteInput.value = '';
+            } catch (error) {
+                console.error("Lỗi lưu ghi chú:", error);
+                alert("Không thể lưu ghi chú:\n" + (error.message || "Mạng lỗi rồi bà chã ơi!"));
+            } finally {
+                if (saveBtn) saveBtn.style.opacity = '1';
+            }
+        }
+
+        // Hiển thị danh sách món uống hôm nay
+        function renderTodayNotes(notes) {
+            const section = document.getElementById('todayNotesSection');
+            const list = document.getElementById('todayNotesList');
+            if (!section || !list) return;
+
+            if (!notes || notes.length === 0) {
+                section.style.display = 'none';
+                list.innerHTML = '';
+                return;
+            }
+
+            section.style.display = 'block';
+            list.innerHTML = notes.map(n => `<span class="note-badge">🧋 ${escapeHtml(n)}</span>`).join('');
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         function showAchievement(title, desc) {
             document.getElementById('achieveTitle').innerText = title;
             document.getElementById('achieveDesc').innerText = desc;
@@ -606,9 +784,16 @@
                 } else {
                     historyData.forEach(item => {
                         let isToday = (item.dateString === todayStr) ? " (Hôm nay)" : "";
+                        let notesHtml = "";
+                        if (item.notes && item.notes.length > 0) {
+                            notesHtml = `<div class="history-notes">🍹 ${item.notes.map(n => escapeHtml(n)).join(', ')}</div>`;
+                        }
                         listEl.innerHTML += `
                             <li class="history-item">
-                                <span class="history-date">${item.dateString}${isToday}</span>
+                                <div style="text-align: left;">
+                                    <span class="history-date">${item.dateString}${isToday}</span>
+                                    ${notesHtml}
+                                </div>
                                 <span class="history-amount">${item.amount} ml</span>
                             </li>
                         `;

@@ -32,7 +32,8 @@ const dayWaterSchema = new mongoose.Schema({
     amount: { type: Number, default: 0 },                       // Tổng ml trong ngày
     checked1300: { type: Boolean, default: false },             // Đã hiện popup 1300ml chưa
     checked1500: { type: Boolean, default: false },             // Đã hiện popup 1500ml chưa
-    checked2000: { type: Boolean, default: false }              // Đã hiện popup 2000ml chưa
+    checked2000: { type: Boolean, default: false },             // Đã hiện popup 2000ml chưa
+    notes: { type: [String], default: [] }                      // Ghi chú món uống ngoài nước lọc
 });
 const DayWater = mongoose.model('DayWater', dayWaterSchema);
 
@@ -50,7 +51,7 @@ app.get('/api/water/today', async (req, res) => {
         let record = await DayWater.findOne({ dateString: todayStr });
 
         if (!record) {
-            record = new DayWater({ dateString: todayStr, amount: 0 });
+            record = new DayWater({ dateString: todayStr, amount: 0, notes: [] });
             await record.save();
         }
         res.status(200).json(record);
@@ -59,19 +60,19 @@ app.get('/api/water/today', async (req, res) => {
     }
 });
 
-// API thêm nước và kiểm tra mốc thành tích
+// API thêm nước và kiểm tra mốc thành tích (hỗ trợ kèm ghi chú)
 app.post('/api/water/add', async (req, res) => {
     try {
-        const { amount } = req.body;
+        const { amount, note } = req.body;
         const todayStr = getTodayVN();
 
         let record = await DayWater.findOne({ dateString: todayStr });
         if (!record) {
-            record = new DayWater({ dateString: todayStr, amount: 0 });
+            record = new DayWater({ dateString: todayStr, amount: 0, notes: [] });
         }
 
         let oldAmount = record.amount;
-        record.amount += amount;
+        record.amount += Number(amount || 0);
         let newAmount = record.amount;
 
         let milestoneReached = null;
@@ -88,8 +89,36 @@ app.post('/api/water/add', async (req, res) => {
             milestoneReached = { title: "🎉 Quá giỏiii!", desc: "Iu bà chãaa 💖🏆" };
         }
 
+        // Lưu ghi chú nếu có
+        if (note && typeof note === 'string' && note.trim()) {
+            if (!record.notes) record.notes = [];
+            record.notes.push(note.trim());
+        }
+
         await record.save();
         res.status(200).json({ record, milestoneReached });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// API lưu ghi chú món uống riêng lẻ
+app.post('/api/water/note', async (req, res) => {
+    try {
+        const { note } = req.body;
+        if (!note || !note.trim()) {
+            return res.status(400).json({ error: "Bà chã chưa nhập ghi chú nè!" });
+        }
+        const todayStr = getTodayVN();
+        let record = await DayWater.findOne({ dateString: todayStr });
+        if (!record) {
+            record = new DayWater({ dateString: todayStr, amount: 0, notes: [] });
+        }
+        if (!record.notes) record.notes = [];
+        record.notes.push(note.trim());
+
+        await record.save();
+        res.status(200).json({ message: "Đã lưu ghi chú thành công!", record });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
