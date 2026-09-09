@@ -4,387 +4,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bà chã nhớ uống nước 🌸</title>
+    <title>Ứng Dụng Nhắc Nhở Uống Nước 🌸</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #FFF0F5;
-            color: #C71585;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 90vh;
-            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
             margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
             text-align: center;
         }
 
-        .card {
-            background: white;
-            border-radius: 25px;
-            padding: 30px;
-            box-shadow: 0 10px 20px rgba(255, 105, 180, 0.15);
-            width: 90%;
-            max-width: 400px;
-            position: relative;
-        }
-
-        h1 {
-            font-size: 26px;
-            margin-bottom: 5px;
-            color: #FF69B4;
-        }
-
-        .date-text {
-            font-size: 15px;
-            color: #DB7093;
-            font-weight: bold;
-            margin-bottom: 20px;
-            background: #FFE4E1;
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 15px;
-        }
-
-        .stats {
-            font-size: 36px;
-            font-weight: bold;
-            color: #FF1493;
-            margin: 15px 0;
+        h2 {
+            color: #ff6b81;
+            margin-bottom: 10px;
         }
 
         .progress-container {
-            width: 100%;
-            background-color: #FFE4E1;
-            border-radius: 20px;
-            height: 22px;
-            margin-bottom: 30px;
+            margin: 20px 0;
+            background: #f1f2f6;
+            border-radius: 10px;
+            height: 25px;
             overflow: hidden;
-            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: relative;
         }
 
         .progress-bar {
             height: 100%;
-            background-color: #FF69B4;
+            background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
             width: 0%;
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 20px;
+            transition: width 0.4s ease;
         }
 
-        .btn-group {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            background-color: #FFB6C1;
-            border: none;
-            border-radius: 18px;
-            padding: 15px 5px;
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-            flex: 1;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(255, 182, 193, 0.4);
-        }
-
-        .btn:active {
-            transform: scale(0.92);
-            box-shadow: 0 1px 2px rgba(255, 182, 193, 0.4);
-        }
-
-        .btn:hover {
-            background-color: #FF69B4;
-        }
-
-        .btn-history {
-            background-color: transparent;
-            color: #FF69B4;
-            border: 2px solid #FF69B4;
-            border-radius: 15px;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.2s;
-        }
-
-        .btn-history:hover {
-            background-color: #FFF0F5;
-        }
-
-        /* CSS chung cho Popup / Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 182, 193, 0.6);
-            backdrop-filter: blur(3px);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            width: 85%;
-            max-width: 350px;
-            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.3);
-            text-align: left;
-            animation: slideUp 0.3s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px dashed #FFE4E1;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-
-        .modal-title {
+        .stats {
             font-size: 18px;
-            color: #FF1493;
             font-weight: bold;
-            margin: 0;
-        }
-
-        .close-btn {
-            font-size: 24px;
-            color: #FFB6C1;
-            cursor: pointer;
-            border: none;
-            background: none;
-            line-height: 1;
-        }
-
-        .history-list {
-            max-height: 250px;
-            overflow-y: auto;
-            padding: 0;
-            margin: 0;
-            list-style: none;
-        }
-
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #FFF0F5;
-            color: #C71585;
-            font-size: 15px;
-        }
-
-        .history-item:last-child {
-            border-bottom: none;
-        }
-
-        .history-date {
-            font-weight: bold;
-        }
-
-        .history-amount {
-            color: #FF69B4;
-            font-weight: bold;
-        }
-
-        /* Popup thông báo mốc thành tích */
-        .achievement-content {
-            text-align: center;
-        }
-
-        .achievement-icon {
-            font-size: 45px;
-            margin-bottom: 10px;
-        }
-
-        .achievement-text {
-            font-size: 16px;
-            color: #C71585;
             margin-bottom: 20px;
-            line-height: 1.5;
+            color: #57606f;
         }
 
-        .btn-ok {
-            background-color: #FF69B4;
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #70a1ff;
             color: white;
             border: none;
-            border-radius: 15px;
-            padding: 10px 25px;
-            font-size: 15px;
-            font-weight: bold;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(255, 105, 180, 0.3);
-            width: 100%;
+            font-weight: bold;
+            transition: background 0.2s;
         }
 
-        .btn-ok:hover {
-            background-color: #FF1493;
+        button:hover {
+            background-color: #1e90ff;
+        }
+
+        button.reset {
+            background-color: #ff4757;
+            grid-column: span 2;
+        }
+
+        button.reset:hover {
+            background-color: #ff6b81;
+        }
+
+        .history {
+            text-align: left;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #a4b0be;
+            border-top: 1px solid #f1f2f6;
+            padding-top: 10px;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="card">
-        <h1>Uống nước đi bà chã ơi! 💧</h1>
-        <div class="date-text" id="displayDate">Hôm nay: ...</div>
-
-        <div class="stats"><span id="currentWater">0</span> / 2000 ml</div>
+    <div class="container">
+        <h2>Uống Nước Nào Bé 🌸</h2>
+        <p>Mục tiêu: 2000 ml / ngày</p>
 
         <div class="progress-container">
             <div class="progress-bar" id="progressBar"></div>
         </div>
 
-        <div class="btn-group">
-            <button class="btn" onclick="addWater(150)">🥤 150ml</button>
-            <button class="btn" onclick="addWater(250)">☕ 250ml</button>
-            <button class="btn" onclick="addWater(500)">🧋 500ml</button>
+        <div class="stats">
+            <span id="currentWater">0</span> ml / 2000 ml
         </div>
 
-        <button class="btn-history" onclick="openHistory()">📅 Coi lại ngày cũ của bà chã</button>
-    </div>
-
-    <!-- Popup Thống kê lịch sử -->
-    <div class="modal-overlay" id="historyModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Lịch sử uống nước 🌸</h2>
-                <button class="close-btn" onclick="closeHistory()">&times;</button>
-            </div>
-            <ul class="history-list" id="historyList"></ul>
+        <div class="buttons">
+            <button onclick="addWater(250)">+ 250 ml (Ly)</button>
+            <button onclick="addWater(500)">+ 500 ml (Chai)</button>
+            <button class="reset" onclick="resetWater()">Đặt lại ngày mới</button>
         </div>
-    </div>
 
-    <!-- Popup Thông báo mốc thành tích -->
-    <div class="modal-overlay" id="achievementModal">
-        <div class="modal-content achievement-content">
-            <div class="achievement-icon" id="achieveIcon">💧</div>
-            <h3 class="modal-title" style="text-align: center; margin-bottom: 10px;" id="achieveTitle">Tuyệt vời!</h3>
-            <p class="achievement-text" id="achieveDesc">Nội dung thông báo...</p>
-            <button class="btn-ok" onclick="closeAchievement()">Dạaa ăm chãa! 💕</button>
+        <div class="history" id="statusMsg">
+            Đang đồng bộ dữ liệu với đám mây...
         </div>
     </div>
 
     <script>
-        const API_URL = 'http://localhost:5000/api/water';
-        const targetWater = 2000;
+        // Đường dẫn API Backend trực tiếp trên Render của bạn
+        const API_URL = 'https://unnuoc.onrender.com/api/water';
+        const TARGET = 2000;
 
-        const todayStr = new Date().toLocaleDateString('vi-VN');
-        document.getElementById('displayDate').innerText = `Hôm nay: ${todayStr} 🌸`;
-
-        // Cập nhật giao diện từ dữ liệu Database
-        function updateUI(amount) {
-            document.getElementById('currentWater').innerText = amount;
-            let percentage = (amount / targetWater) * 100;
-            if (percentage > 100) percentage = 100;
-            document.getElementById('progressBar').style.width = percentage + '%';
-        }
-
-        // Lấy dữ liệu ngày hôm nay từ Server khi mở web
-        async function fetchTodayData() {
+        // Lấy dữ liệu từ server khi vừa mở app
+        async function fetchWaterData() {
             try {
-                let response = await fetch(`${API_URL}/today`);
-                let data = await response.json();
-                updateUI(data.amount);
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                // Giả sử backend trả về tổng số ml nước đã uống trong ngày
+                const total = data.totalWater || 0;
+                updateUI(total);
+                document.getElementById('statusMsg').innerText = "Đã kết nối mây thành công! ☁️";
             } catch (error) {
-                console.error("Lỗi kết nối server:", error);
+                console.error("Lỗi kết nối:", error);
+                document.getElementById('statusMsg').innerText = "⚠️ Đang đánh thức server (mất ~50s nếu lâu không dùng)...";
+                // Thử gọi lại sau vài giây nếu server đang ngủ đông
+                setTimeout(fetchWaterData, 5000);
             }
         }
 
-        // Gửi lượng nước khi bấm nút
+        // Gửi lượng nước cộng thêm lên server
         async function addWater(amount) {
             try {
-                let response = await fetch(`${API_URL}/add`, {
+                document.getElementById('statusMsg').innerText = "Đang lưu lên mây...";
+                const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount })
+                    body: JSON.stringify({ amount: amount })
                 });
-                let data = await response.json();
-
-                // Cập nhật UI theo dữ liệu trả về từ DB
-                updateUI(data.record.amount);
-
-                // Nếu đạt mốc mới thì hiện Popup chúc mừng từ Server
-                if (data.milestoneReached) {
-                    showAchievement(data.milestoneReached.title, data.milestoneReached.desc);
-                }
+                const data = await response.json();
+                updateUI(data.totalWater);
+                document.getElementById('statusMsg').innerText = "Đã cập nhật thành công! ✨";
             } catch (error) {
                 console.error("Lỗi gửi dữ liệu:", error);
-                alert("Mạng lỗi rồi bà chã ơi!");
+                document.getElementById('statusMsg').innerText = "❌ Không gửi được lên server!";
             }
         }
 
-        function showAchievement(title, desc) {
-            document.getElementById('achieveTitle').innerText = title;
-            document.getElementById('achieveDesc').innerText = desc;
-            document.getElementById('achievementModal').style.display = 'flex';
-        }
-
-        function closeAchievement() {
-            document.getElementById('achievementModal').style.display = 'none';
-        }
-
-        // --- LẤY LỊCH SỬ TỪ DATABASE CHO NÚT "COI LẠI NGÀY CŨ" ---
-        async function openHistory() {
-            const listEl = document.getElementById('historyList');
-            listEl.innerHTML = '<li class="history-item">Đang tải...</li>';
-            document.getElementById('historyModal').style.display = 'flex';
-
+        // Reset dữ liệu
+        async function resetWater() {
             try {
-                let response = await fetch(`${API_URL}/history`);
-                let historyData = await response.json();
-
-                listEl.innerHTML = '';
-                if (historyData.length === 0) {
-                    listEl.innerHTML = '<li class="history-item">Chưa có dữ liệu nào nè!</li>';
-                } else {
-                    historyData.forEach(item => {
-                        let isToday = (item.dateString === todayStr) ? " (Hôm nay)" : "";
-                        listEl.innerHTML += `
-                            <li class="history-item">
-                                <span class="history-date">${item.dateString}${isToday}</span>
-                                <span class="history-amount">${item.amount} ml</span>
-                            </li>
-                        `;
-                    });
-                }
+                const response = await fetch(`${API_URL}/reset`, { method: 'POST' });
+                const data = await response.json();
+                updateUI(data.totalWater || 0);
+                document.getElementById('statusMsg').innerText = "Đã làm mới ngày mới! 🌿";
             } catch (error) {
-                console.error("Lỗi lấy lịch sử:", error);
-                listEl.innerHTML = '<li class="history-item">Không tải được lịch sử rùi!</li>';
+                console.error("Lỗi reset:", error);
             }
         }
 
-        function closeHistory() {
-            document.getElementById('historyModal').style.display = 'none';
+        // Cập nhật giao diện thanh tiến trình
+        function updateUI(current) {
+            document.getElementById('currentWater').innerText = current;
+            let percent = (current / TARGET) * 100;
+            if (percent > 100) percent = 100;
+            document.getElementById('progressBar').style.width = percent + '%';
         }
 
-        // Chạy lấy dữ liệu ngay khi load trang
-        fetchTodayData();
+        // Chạy load dữ liệu ngay khi bật trang
+        fetchWaterData();
     </script>
 </body>
 
