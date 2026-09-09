@@ -133,7 +133,7 @@
             display: flex;
             justify-content: space-between;
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .btn {
@@ -157,6 +157,72 @@
 
         .btn:hover {
             background-color: #FF69B4;
+        }
+
+        /* Ô nhập số ml bằng tay */
+        .custom-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .custom-input {
+            flex: 1;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-family: inherit;
+            color: #C71585;
+            background: #FFF0F5;
+            border: 2px solid #FFE4E1;
+            border-radius: 18px;
+            outline: none;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        .custom-input::placeholder {
+            color: #DB7093;
+            opacity: 0.8;
+            font-size: 13px;
+        }
+
+        .custom-input:focus {
+            border-color: #FF69B4;
+            background: #FFF;
+            box-shadow: 0 0 8px rgba(255, 105, 180, 0.25);
+        }
+
+        .custom-input::-webkit-outer-spin-button,
+        .custom-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .custom-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .btn-custom-add {
+            background-color: #FF69B4;
+            border: none;
+            border-radius: 18px;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(255, 105, 180, 0.3);
+            white-space: nowrap;
+        }
+
+        .btn-custom-add:hover {
+            background-color: #FF1493;
+            transform: translateY(-1px);
+        }
+
+        .btn-custom-add:active {
+            transform: scale(0.94);
         }
 
         .btn-history {
@@ -358,6 +424,11 @@
             <button class="btn" onclick="addWater(500)">🧋 500ml</button>
         </div>
 
+        <div class="custom-input-group">
+            <input type="number" id="customAmountInput" class="custom-input" placeholder="Hoặc tự nhập số ml..." min="1" max="3000" onkeydown="if(event.key==='Enter') addCustomWater()" />
+            <button class="btn-custom-add" onclick="addCustomWater()">+ Uống</button>
+        </div>
+
         <button class="btn-history" onclick="openHistory()">📅 Coi lại ngày cũ của bà chã</button>
         <button class="btn-reset" onclick="resetWater()">🔄 Đặt lại hôm nay về 0 ml</button>
     </div>
@@ -449,7 +520,7 @@
         async function addWater(amount) {
             if (isSubmitting) return;
             isSubmitting = true;
-            const buttons = document.querySelectorAll('.btn-group .btn');
+            const buttons = document.querySelectorAll('.btn-group .btn, .btn-custom-add');
             buttons.forEach(btn => btn.style.opacity = '0.6');
 
             try {
@@ -480,6 +551,29 @@
                 isSubmitting = false;
                 buttons.forEach(btn => btn.style.opacity = '1');
             }
+        }
+
+        // Nhập số ml bằng tay
+        async function addCustomWater() {
+            const inputEl = document.getElementById('customAmountInput');
+            if (!inputEl) return;
+            const val = parseInt(inputEl.value.trim(), 10);
+
+            if (isNaN(val) || val <= 0) {
+                alert("Bà chã nhập số ml lớn hơn 0 nhé! 💧");
+                inputEl.focus();
+                return;
+            }
+
+            if (val > 3000) {
+                if (!confirm(`Bà chã uống tận ${val} ml một lần thiệt luôn hả? 😲`)) {
+                    return;
+                }
+            }
+
+            await addWater(val);
+            inputEl.value = '';
+            inputEl.blur();
         }
 
         function showAchievement(title, desc) {
