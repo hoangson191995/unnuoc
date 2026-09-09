@@ -299,8 +299,9 @@
 
         // Cập nhật giao diện từ dữ liệu Database
         function updateUI(amount) {
-            document.getElementById('currentWater').innerText = amount;
-            let percentage = (amount / targetWater) * 100;
+            const currentVal = amount !== undefined && amount !== null ? amount : 0;
+            document.getElementById('currentWater').innerText = currentVal;
+            let percentage = (currentVal / targetWater) * 100;
             if (percentage > 100) percentage = 100;
             document.getElementById('progressBar').style.width = percentage + '%';
         }
@@ -326,11 +327,13 @@
                 });
                 let data = await response.json();
 
-                // Cập nhật UI theo dữ liệu trả về từ DB
-                updateUI(data.record.amount);
+                // Kiểm tra an toàn trước khi cập nhật UI để tránh lỗi undefined
+                if (data && data.record) {
+                    updateUI(data.record.amount);
+                }
 
                 // Nếu đạt mốc mới thì hiện Popup chúc mừng từ Server
-                if (data.milestoneReached) {
+                if (data && data.milestoneReached) {
                     showAchievement(data.milestoneReached.title, data.milestoneReached.desc);
                 }
             } catch (error) {
@@ -360,7 +363,7 @@
                 let historyData = await response.json();
 
                 listEl.innerHTML = '';
-                if (historyData.length === 0) {
+                if (!historyData || historyData.length === 0) {
                     listEl.innerHTML = '<li class="history-item">Chưa có dữ liệu nào nè!</li>';
                 } else {
                     historyData.forEach(item => {
