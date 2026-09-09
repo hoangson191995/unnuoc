@@ -36,12 +36,17 @@ const dayWaterSchema = new mongoose.Schema({
 });
 const DayWater = mongoose.model('DayWater', dayWaterSchema);
 
+// Hàm lấy ngày theo múi giờ Việt Nam (UTC+7) để tránh lệch ngày do server Render chạy giờ UTC
+function getTodayVN() {
+    return new Date().toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+}
+
 // --- 2. CÁC API ROUTING ---
 
 // API lấy dữ liệu ngày hôm nay
 app.get('/api/water/today', async (req, res) => {
     try {
-        const todayStr = new Date().toLocaleDateString('vi-VN');
+        const todayStr = getTodayVN();
         let record = await DayWater.findOne({ dateString: todayStr });
 
         if (!record) {
@@ -58,7 +63,7 @@ app.get('/api/water/today', async (req, res) => {
 app.post('/api/water/add', async (req, res) => {
     try {
         const { amount } = req.body;
-        const todayStr = new Date().toLocaleDateString('vi-VN');
+        const todayStr = getTodayVN();
 
         let record = await DayWater.findOne({ dateString: todayStr });
         if (!record) {
@@ -93,7 +98,7 @@ app.post('/api/water/add', async (req, res) => {
 // API đặt lại (reset) lượng nước ngày hôm nay về 0
 app.post('/api/water/reset', async (req, res) => {
     try {
-        const todayStr = new Date().toLocaleDateString('vi-VN');
+        const todayStr = getTodayVN();
         let record = await DayWater.findOne({ dateString: todayStr });
 
         if (!record) {

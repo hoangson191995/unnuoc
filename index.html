@@ -322,7 +322,7 @@
             : 'https://unnuoc.onrender.com/api/water';
         const targetWater = 2000;
 
-        const todayStr = new Date().toLocaleDateString('vi-VN');
+        const todayStr = new Date().toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
         document.getElementById('displayDate').innerText = `Hôm nay: ${todayStr} 🌸`;
 
         // Cập nhật giao diện từ dữ liệu Database
@@ -341,6 +341,9 @@
                 let data = await response.json();
                 if (!response.ok) {
                     throw new Error(data.error || 'Lỗi server: ' + response.status);
+                }
+                if (data && data.dateString) {
+                    document.getElementById('displayDate').innerText = `Hôm nay: ${data.dateString} 🌸`;
                 }
                 updateUI(data.amount);
             } catch (error) {
