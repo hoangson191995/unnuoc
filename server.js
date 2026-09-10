@@ -47,9 +47,60 @@ function getTodayVN() {
     return new Date().toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
 }
 
+// Hàm tính chuỗi ngày uống nước liên tiếp (mỗi ngày >= 1500ml)
+function calculateStreak(records, todayStr) {
+    const recordMap = new Map();
+    records.forEach(r => recordMap.set(r.dateString, r.amount));
+
+    function parseDate(str) {
+        const [d, m, y] = str.split('/').map(Number);
+        return new Date(y, m - 1, d);
+    }
+
+    function formatDate(d) {
+        return d.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+    }
+
+    const todayDate = parseDate(todayStr);
+    const todayAmount = recordMap.get(todayStr) || 0;
+    const STREAK_THRESHOLD = 1500;
+
+    let streak = 0;
+    let checkDate = new Date(todayDate);
+
+    if (todayAmount >= STREAK_THRESHOLD) {
+        streak = 1;
+        checkDate.setDate(checkDate.getDate() - 1);
+        while (true) {
+            const dateStr = formatDate(checkDate);
+            const amount = recordMap.get(dateStr) || 0;
+            if (amount >= STREAK_THRESHOLD) {
+                streak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+            } else {
+                break;
+            }
+        }
+    } else {
+        checkDate.setDate(checkDate.getDate() - 1);
+        while (true) {
+            const dateStr = formatDate(checkDate);
+            const amount = recordMap.get(dateStr) || 0;
+            if (amount >= STREAK_THRESHOLD) {
+                streak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+            } else {
+                break;
+            }
+        }
+    }
+
+    return streak;
+}
+
 // --- 2. CÁC API ROUTING ---
 
-// API lấy dữ liệu ngày hôm nay
+// API lấy dữ liệu ngày hôm nay (kèm chuỗi ngày streak)
 app.get('/api/water/today', async (req, res) => {
     try {
         const todayStr = getTodayVN();
@@ -59,7 +110,11 @@ app.get('/api/water/today', async (req, res) => {
             record = new DayWater({ dateString: todayStr, amount: 0, notes: [] });
             await record.save();
         }
-        res.status(200).json(record);
+
+        const allRecords = await DayWater.find();
+        const streak = calculateStreak(allRecords, todayStr);
+
+        res.status(200).json({ ...record.toObject(), streak });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -101,7 +156,9 @@ app.post('/api/water/add', async (req, res) => {
         }
 
         await record.save();
-        res.status(200).json({ record, milestoneReached });
+        const allRecords = await DayWater.find();
+        const streak = calculateStreak(allRecords, todayStr);
+        res.status(200).json({ record, milestoneReached, streak });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -182,7 +239,9 @@ app.post('/api/water/reset', async (req, res) => {
         }
 
         await record.save();
-        res.status(200).json({ message: "Đã đặt lại về 0 ml thành công!", record });
+        const allRecords = await DayWater.find();
+        const streak = calculateStreak(allRecords, todayStr);
+        res.status(200).json({ message: "Đã đặt lại về 0 ml thành công!", record, streak });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

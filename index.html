@@ -36,15 +36,129 @@
             color: #FF69B4;
         }
 
+        .header-badges {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
         .date-text {
             font-size: 15px;
             color: #DB7093;
             font-weight: bold;
-            margin-bottom: 20px;
             background: #FFE4E1;
             display: inline-block;
             padding: 5px 15px;
             border-radius: 15px;
+        }
+
+        .streak-badge {
+            font-size: 14px;
+            color: #FF4500;
+            font-weight: bold;
+            background: #FFF2EB;
+            border: 1.5px solid #FFD8CC;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 14px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(255, 69, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .streak-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(255, 69, 0, 0.2);
+        }
+
+        .streak-badge.active {
+            background: linear-gradient(135deg, #FFF5EB, #FFE6D5);
+            border-color: #FFA07A;
+            animation: pulseStreak 2.5s infinite;
+        }
+
+        @keyframes pulseStreak {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+
+        /* Khung linh vật cảm xúc */
+        .mascot-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 6px 0 10px 0;
+        }
+
+        .mascot-avatar-wrap {
+            width: 82px;
+            height: 82px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: mascotFloat 3s ease-in-out infinite;
+            user-select: none;
+        }
+
+        .mascot-avatar-wrap:hover {
+            transform: scale(1.08) rotate(3deg);
+        }
+
+        .mascot-avatar-wrap.poked {
+            animation: mascotWiggle 0.5s ease;
+        }
+
+        @keyframes mascotFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @keyframes mascotWiggle {
+            0%, 100% { transform: scale(1) rotate(0); }
+            25% { transform: scale(1.22) rotate(-8deg); }
+            75% { transform: scale(1.18) rotate(8deg); }
+        }
+
+        .mascot-speech {
+            margin-top: 8px;
+            background: #FFF5F8;
+            border: 1.5px solid #FFD1DC;
+            border-radius: 16px;
+            padding: 6px 14px;
+            font-size: 13px;
+            color: #C71585;
+            font-weight: 600;
+            max-width: 290px;
+            line-height: 1.4;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(255, 182, 193, 0.25);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .mascot-speech:hover {
+            background: #FFF0F5;
+            transform: translateY(-1px);
+        }
+
+        .mascot-speech::after {
+            content: '';
+            position: absolute;
+            top: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 7px 7px 7px;
+            border-style: solid;
+            border-color: transparent transparent #FFD1DC transparent;
         }
 
         .stats {
@@ -533,7 +647,25 @@
 
     <div class="card">
         <h1>Uống nước đi bà chã ơi! 💧</h1>
-        <div class="date-text" id="displayDate">Hôm nay: ...</div>
+
+        <!-- Hàng hiển thị ngày và chuỗi ngày streak 🔥 -->
+        <div class="header-badges">
+            <div class="date-text" id="displayDate">Hôm nay: ...</div>
+            <div class="streak-badge" id="streakBadge" onclick="showStreakInfo()" title="Uống đủ từ 1500ml mỗi ngày để nối dài chuỗi!">
+                <span class="streak-icon">🔥</span>
+                <span id="streakText">Chuỗi: 0 ngày</span>
+            </div>
+        </div>
+
+        <!-- Bé linh vật cảm xúc động -->
+        <div class="mascot-container">
+            <div class="mascot-avatar-wrap" id="mascotAvatar" onclick="pokeMascot()" title="Chạm vô em để nghe lời iu thương nè! 🌸">
+                <div id="mascotSvg"></div>
+            </div>
+            <div class="mascot-speech" id="mascotSpeech" onclick="pokeMascot()">
+                <span id="mascotText">Đang nạp cảm xúc...</span>
+            </div>
+        </div>
 
         <div class="stats"><span id="currentWater">0</span> / 2000 ml</div>
 
@@ -610,6 +742,202 @@
         const todayStr = new Date().toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
         document.getElementById('displayDate').innerText = `Hôm nay: ${todayStr} 🌸`;
 
+        // --- 1. HỆ THỐNG LINH VẬT CẢM XÚC (MASCOT) ---
+        const MASCOT_DATA = {
+            thirsty: {
+                min: 0,
+                max: 499,
+                badge: "🥀 Khát queo rùi...",
+                messages: [
+                    "Khát khô queo rùi bà chã ưi... cho em ngụm nước đi mừ 🥺",
+                    "Bà chã đừng nhịn khát nhoa, da khô queo á! 💧",
+                    "Hức hức, ly nước của em đâu rùi bà chã... 🥀",
+                    "Cần nạp nước gấp thui bà chã ơi! 🥺💧"
+                ],
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80">
+                    <defs>
+                        <linearGradient id="dropThirsty" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#E2E8F0" />
+                            <stop offset="100%" stop-color="#CBD5E1" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M50 16 C38 35, 20 52, 20 68 C20 84.5, 33.5 95, 50 95 C66.5 95, 80 84.5, 80 68 C80 52, 62 35, 50 16 Z" fill="url(#dropThirsty)" stroke="#94A3B8" stroke-width="2" />
+                    <path d="M32 55 Q30 70 38 78" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.6"/>
+                    <ellipse cx="38" cy="64" rx="4" ry="5.5" fill="#475569" />
+                    <circle cx="39.5" cy="62" r="1.8" fill="#FFFFFF" />
+                    <ellipse cx="62" cy="64" rx="4" ry="5.5" fill="#475569" />
+                    <circle cx="63.5" cy="62" r="1.8" fill="#FFFFFF" />
+                    <path d="M34 72 Q31 77 34 80 Q37 77 34 72 Z" fill="#60A5FA" opacity="0.8"/>
+                    <path d="M44 76 Q50 71 56 76" stroke="#475569" stroke-width="2.5" stroke-linecap="round" fill="none" />
+                    <ellipse cx="32" cy="68" rx="3.5" ry="2" fill="#FCA5A5" opacity="0.5"/>
+                    <ellipse cx="68" cy="68" rx="3.5" ry="2" fill="#FCA5A5" opacity="0.5"/>
+                </svg>`
+            },
+            refreshing: {
+                min: 500,
+                max: 1299,
+                badge: "🌱 Đang nạp năng lượng",
+                messages: [
+                    "Đang nạp nước ngọt ngào nè, uống thêm tí nữa nha bà chã! 💪",
+                    "Mát quá đi thuii! Tiếp tục phát huy nèo! 🌱",
+                    "Thêm tí nước nữa là da dẻ căng mọng luông ó! ✨",
+                    "Em đang tươi tỉnh dần lên rùi nè bà chã! 💧"
+                ],
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80">
+                    <defs>
+                        <linearGradient id="dropRefresh" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#BAE6FD" />
+                            <stop offset="100%" stop-color="#7DD3FC" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M50 14 C36 34, 18 52, 18 68 C18 85, 32.5 95, 50 95 C67.5 95, 82 85, 82 68 C82 52, 64 34, 50 14 Z" fill="url(#dropRefresh)" stroke="#38BDF8" stroke-width="2" />
+                    <path d="M50 14 Q54 6 62 8 Q60 14 50 14 Z" fill="#4ADE80" stroke="#22C55E" stroke-width="1.2" />
+                    <path d="M50 14 Q46 5 38 7 Q40 13 50 14 Z" fill="#86EFAC" stroke="#22C55E" stroke-width="1.2" />
+                    <path d="M30 52 Q28 68 36 78" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.8"/>
+                    <ellipse cx="38" cy="62" rx="4.5" ry="6" fill="#0369A1" />
+                    <circle cx="39.5" cy="60" r="2" fill="#FFFFFF" />
+                    <circle cx="36.5" cy="64.5" r="1" fill="#FFFFFF" />
+                    <ellipse cx="62" cy="62" rx="4.5" ry="6" fill="#0369A1" />
+                    <circle cx="63.5" cy="60" r="2" fill="#FFFFFF" />
+                    <circle cx="60.5" cy="64.5" r="1" fill="#FFFFFF" />
+                    <ellipse cx="31" cy="68" rx="4.5" ry="2.5" fill="#FDA4AF" />
+                    <ellipse cx="69" cy="68" rx="4.5" ry="2.5" fill="#FDA4AF" />
+                    <path d="M45 70 Q50 76 55 70" stroke="#0369A1" stroke-width="2.5" stroke-linecap="round" fill="none" />
+                </svg>`
+            },
+            happy: {
+                min: 1300,
+                max: 1999,
+                badge: "🌸 Tươi tỉnh rạng rỡ",
+                messages: [
+                    "Chu choa tuyệt vời! Sắp chạm đích 2000ml rồi nè bà chã ơi! ✨",
+                    "Bà chã siêu quá à, nở hoa trong lòng lun á! 🌸🥰",
+                    "Cố lên một tí xíu nữa là hoàn thành nhiệm vụ ngày rùi nè! 💕",
+                    "Ăm chã khen bà chã ngoan quá chừng nà! 🌸"
+                ],
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80">
+                    <defs>
+                        <linearGradient id="dropHappy" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFD1DC" />
+                            <stop offset="100%" stop-color="#FF8DA1" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M50 14 C36 34, 18 52, 18 68 C18 85, 32.5 95, 50 95 C67.5 95, 82 85, 82 68 C82 52, 64 34, 50 14 Z" fill="url(#dropHappy)" stroke="#FF69B4" stroke-width="2" />
+                    <g transform="translate(60, 20) scale(0.65)">
+                        <circle cx="0" cy="0" r="6" fill="#FFE4E1" />
+                        <circle cx="0" cy="-9" r="6" fill="#FFB6C1" />
+                        <circle cx="9" cy="-3" r="6" fill="#FFB6C1" />
+                        <circle cx="6" cy="8" r="6" fill="#FFB6C1" />
+                        <circle cx="-6" cy="8" r="6" fill="#FFB6C1" />
+                        <circle cx="-9" cy="-3" r="6" fill="#FFB6C1" />
+                        <circle cx="0" cy="0" r="4" fill="#FFD700" />
+                    </g>
+                    <path d="M30 52 Q28 68 36 78" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.8"/>
+                    <path d="M33 63 Q39 57 45 63" stroke="#9D174D" stroke-width="3" stroke-linecap="round" fill="none" />
+                    <path d="M55 63 Q61 57 67 63" stroke="#9D174D" stroke-width="3" stroke-linecap="round" fill="none" />
+                    <ellipse cx="30" cy="69" rx="5" ry="3" fill="#FB7185" opacity="0.8" />
+                    <ellipse cx="70" cy="69" rx="5" ry="3" fill="#FB7185" opacity="0.8" />
+                    <path d="M43 71 Q50 80 57 71 Z" fill="#E11D48" />
+                    <path d="M46 74 Q50 77 54 74" fill="#FDA4AF" />
+                </svg>`
+            },
+            champion: {
+                min: 2000,
+                max: Infinity,
+                badge: "👑 Đỉnh nóc kịch trần!",
+                messages: [
+                    "Xuất sắc 100 điểm! Đạt chỉ tiêu rùi, ăm chã iu bà chãaa 💖🏆",
+                    "Bà chã là vô địch uống nước luông! Tặng bà chã 1000 nụ hôn 💋👑",
+                    "Bà chã uống đủ 2000ml rùi, dáng đẹp da xinh rạng ngời lun! 💖✨",
+                    "Ăm chã tự hào về bà chã nhứt trần đời! 🏆💕"
+                ],
+                svg: `<svg viewBox="0 0 100 100" width="80" height="80">
+                    <defs>
+                        <linearGradient id="dropChamp" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFB6C1" />
+                            <stop offset="60%" stop-color="#FF69B4" />
+                            <stop offset="100%" stop-color="#FF1493" />
+                        </linearGradient>
+                        <linearGradient id="goldCrown" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FDE047" />
+                            <stop offset="100%" stop-color="#EAB308" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M50 14 C36 34, 18 52, 18 68 C18 85, 32.5 95, 50 95 C67.5 95, 82 85, 82 68 C82 52, 64 34, 50 14 Z" fill="url(#dropChamp)" stroke="#BE185D" stroke-width="2" />
+                    <g transform="translate(32, -4)">
+                        <path d="M4 22 L10 10 L18 18 L26 10 L32 22 Z" fill="url(#goldCrown)" stroke="#CA8A04" stroke-width="1.5" />
+                        <circle cx="10" cy="9" r="2.5" fill="#EF4444" />
+                        <circle cx="18" cy="17" r="2.5" fill="#3B82F6" />
+                        <circle cx="26" cy="9" r="2.5" fill="#10B981" />
+                    </g>
+                    <path d="M30 52 Q28 68 36 78" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.85"/>
+                    <path d="M33 63 Q39 57 45 63" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" />
+                    <ellipse cx="62" cy="62" rx="4.5" ry="6" fill="#FFFFFF" />
+                    <circle cx="63.5" cy="60" r="2" fill="#831843" />
+                    <ellipse cx="29" cy="69" rx="5" ry="3" fill="#FFE4E1" opacity="0.9" />
+                    <ellipse cx="71" cy="69" rx="5" ry="3" fill="#FFE4E1" opacity="0.9" />
+                    <path d="M43 70 Q50 81 57 70 Z" fill="#FFFFFF" />
+                    <path d="M46 73 Q50 78 54 73" fill="#FF1493" />
+                    <path d="M78 45 C78 41 74 38 71 41 C68 38 64 41 64 45 C64 50 71 55 71 55 C71 55 78 50 78 45 Z" fill="#FF1493" transform="scale(0.8) translate(18, 5)" />
+                </svg>`
+            }
+        };
+
+        let currentMascotKey = 'thirsty';
+
+        function updateMascot(amount) {
+            let key = 'thirsty';
+            if (amount >= 2000) key = 'champion';
+            else if (amount >= 1300) key = 'happy';
+            else if (amount >= 500) key = 'refreshing';
+
+            currentMascotKey = key;
+            const data = MASCOT_DATA[key];
+
+            const svgEl = document.getElementById('mascotSvg');
+            const textEl = document.getElementById('mascotText');
+
+            if (svgEl) svgEl.innerHTML = data.svg;
+            if (textEl) textEl.innerText = data.messages[0];
+        }
+
+        // Chạm vào bé linh vật để nghe câu nói ngẫu nhiên
+        function pokeMascot() {
+            const avatar = document.getElementById('mascotAvatar');
+            if (avatar) {
+                avatar.classList.remove('poked');
+                void avatar.offsetWidth;
+                avatar.classList.add('poked');
+            }
+
+            const data = MASCOT_DATA[currentMascotKey];
+            if (data && data.messages) {
+                const randomMsg = data.messages[Math.floor(Math.random() * data.messages.length)];
+                const textEl = document.getElementById('mascotText');
+                if (textEl) textEl.innerText = randomMsg;
+            }
+        }
+
+        // --- 2. HỆ THỐNG CHUỖI NGÀY LIÊN TIẾP (STREAK) ---
+        function updateStreakUI(streak) {
+            const streakBadge = document.getElementById('streakBadge');
+            const streakText = document.getElementById('streakText');
+            if (!streakBadge || !streakText) return;
+
+            const s = (streak !== undefined && streak !== null) ? Number(streak) : 0;
+            if (s > 0) {
+                streakText.innerText = `Chuỗi: ${s} ngày`;
+                streakBadge.classList.add('active');
+            } else {
+                streakText.innerText = `Bắt đầu chuỗi hôm nay!`;
+                streakBadge.classList.remove('active');
+            }
+        }
+
+        function showStreakInfo() {
+            alert("🔥 Chuỗi ngày ngoan ngoãn:\n\nMỗi ngày bà chã uống từ 1500ml trở lên sẽ giữ và tăng chuỗi ngày liên tiếp nha!\nCố lên mỗi ngày để chuỗi ngày càng dài nhé bà chã ưi! 💕");
+        }
+
         // Cập nhật giao diện từ dữ liệu Database
         function updateUI(amount) {
             const currentVal = amount !== undefined && amount !== null ? amount : 0;
@@ -617,6 +945,9 @@
             let percentage = (currentVal / targetWater) * 100;
             if (percentage > 100) percentage = 100;
             document.getElementById('progressBar').style.width = percentage + '%';
+
+            // Cập nhật linh vật cảm xúc
+            updateMascot(currentVal);
 
             // Cập nhật vạch và nhãn mốc tương ứng khi đạt tới
             const m1300 = document.getElementById('marker1300');
@@ -656,6 +987,9 @@
                     document.getElementById('displayDate').innerText = `Hôm nay: ${data.dateString} 🌸`;
                 }
                 updateUI(data.amount);
+                if (data && data.streak !== undefined) {
+                    updateStreakUI(data.streak);
+                }
                 if (data && data.notes) {
                     renderTodayNotes(data.notes);
                 }
@@ -693,6 +1027,11 @@
                     if (data.record.notes) {
                         renderTodayNotes(data.record.notes);
                     }
+                }
+
+                // Cập nhật chuỗi ngày streak
+                if (data && data.streak !== undefined) {
+                    updateStreakUI(data.streak);
                 }
 
                 // Nếu đạt mốc mới thì hiện Popup chúc mừng từ Server
@@ -919,6 +1258,9 @@
                 }
 
                 updateUI(0);
+                if (data && data.streak !== undefined) {
+                    updateStreakUI(data.streak);
+                }
                 alert("Đã đặt lại thanh tiến độ về 0 ml rùi nha! 💧");
             } catch (error) {
                 console.error("Lỗi khi reset:", error);
