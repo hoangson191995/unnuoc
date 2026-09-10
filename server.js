@@ -26,6 +26,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Route /ping siêu nhẹ để UptimeRobot giữ ấm server 24/7 mà không tốn tài nguyên DB
+app.get('/ping', (req, res) => {
+    res.status(200).send('pong');
+});
+
 // --- 1. KHAI BÁO SCHEMA THEO NGÀY ---
 const dayWaterSchema = new mongoose.Schema({
     dateString: { type: String, required: true, unique: true }, // VD: "09/09/2026"
