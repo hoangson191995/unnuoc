@@ -129,6 +129,43 @@ app.post('/api/water/note', async (req, res) => {
     }
 });
 
+// API xóa 1 ghi chú món uống theo thứ tự (index)
+app.post('/api/water/note/delete', async (req, res) => {
+    try {
+        const idx = parseInt(req.body.index, 10);
+        const todayStr = getTodayVN();
+        let record = await DayWater.findOne({ dateString: todayStr });
+
+        if (!record || !record.notes || isNaN(idx) || idx < 0 || idx >= record.notes.length) {
+            return res.status(400).json({ error: "Không tìm thấy ghi chú để xóa!" });
+        }
+
+        record.notes.splice(idx, 1);
+        await record.save();
+        res.status(200).json({ message: "Đã xóa món thành công!", record });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/water/note/:index', async (req, res) => {
+    try {
+        const idx = parseInt(req.params.index, 10);
+        const todayStr = getTodayVN();
+        let record = await DayWater.findOne({ dateString: todayStr });
+
+        if (!record || !record.notes || isNaN(idx) || idx < 0 || idx >= record.notes.length) {
+            return res.status(400).json({ error: "Không tìm thấy ghi chú để xóa!" });
+        }
+
+        record.notes.splice(idx, 1);
+        await record.save();
+        res.status(200).json({ message: "Đã xóa món thành công!", record });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // API đặt lại (reset) lượng nước ngày hôm nay về 0
 app.post('/api/water/reset', async (req, res) => {
     try {

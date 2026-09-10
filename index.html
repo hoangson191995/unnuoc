@@ -297,13 +297,58 @@
         .note-badge {
             background: #FFE4E1;
             color: #C71585;
-            padding: 3px 9px;
-            border-radius: 10px;
-            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 600;
             display: inline-flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .note-badge:hover,
+        .note-badge.show-del {
+            background: #FFD1DC;
+        }
+
+        .note-del-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 0;
+            height: 16px;
+            opacity: 0;
+            overflow: hidden;
+            font-size: 15px;
+            font-weight: bold;
+            color: #FF1493;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            padding: 0;
+            margin-left: 0;
+            line-height: 1;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+        }
+
+        /* Khi rê chuột hoặc chạm vào badge thì hiện dấu x */
+        .note-badge:hover .note-del-btn,
+        .note-badge.show-del .note-del-btn {
+            width: 16px;
+            opacity: 0.9;
+            margin-left: 4px;
+        }
+
+        .note-del-btn:hover {
+            color: white;
+            background-color: #FF1493;
+            transform: scale(1.15);
+            opacity: 1;
         }
 
         /* Ghi chú trong popup lịch sử */
@@ -742,8 +787,57 @@
             }
 
             section.style.display = 'block';
-            list.innerHTML = notes.map(n => `<span class="note-badge">🧋 ${escapeHtml(n)}</span>`).join('');
+            list.innerHTML = notes.map((n, idx) => `
+                <span class="note-badge" onclick="toggleNoteBadge(event, this)">
+                    <span>🧋 ${escapeHtml(n)}</span>
+                    <button type="button" class="note-del-btn" title="Xóa món này" onclick="deleteNote(event, ${idx})">&times;</button>
+                </span>
+            `).join('');
         }
+
+        // Bật/tắt dấu x khi chạm vào món trên điện thoại
+        function toggleNoteBadge(event, badgeEl) {
+            if (event.target.classList.contains('note-del-btn')) return;
+            document.querySelectorAll('.note-badge').forEach(b => {
+                if (b !== badgeEl) b.classList.remove('show-del');
+            });
+            badgeEl.classList.toggle('show-del');
+        }
+
+        // Xóa món uống khỏi database
+        async function deleteNote(event, index) {
+            event.stopPropagation();
+            const badgeEl = event.target.closest('.note-badge');
+            if (badgeEl) badgeEl.style.opacity = '0.4';
+
+            try {
+                let response = await fetch(`${API_URL}/note/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ index })
+                });
+                let data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Lỗi server: ' + response.status);
+                }
+
+                if (data && data.record) {
+                    renderTodayNotes(data.record.notes || []);
+                }
+            } catch (error) {
+                console.error("Lỗi xóa ghi chú:", error);
+                alert("Không thể xóa món:\n" + (error.message || "Mạng lỗi rồi bà chã ơi!"));
+                if (badgeEl) badgeEl.style.opacity = '1';
+            }
+        }
+
+        // Chạm ra ngoài để ẩn dấu x
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.note-badge')) {
+                document.querySelectorAll('.note-badge.show-del').forEach(b => b.classList.remove('show-del'));
+            }
+        });
 
         function escapeHtml(str) {
             return String(str)
