@@ -473,6 +473,159 @@
             margin-top: 3px;
         }
 
+        /* Dòng thời gian uống nước trong ngày (Feature 5) */
+        .today-timeline-section {
+            margin: 15px 0 10px 0;
+            background: #FFFDFC;
+            border: 1.5px solid #FFE4E1;
+            border-radius: 18px;
+            padding: 12px 14px;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(255, 182, 193, 0.15);
+        }
+
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: bold;
+            color: #C71585;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed #FFD1DC;
+        }
+
+        .timeline-count-badge {
+            background: #FFE4E1;
+            color: #FF1493;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .timeline-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 170px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .timeline-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .timeline-list::-webkit-scrollbar-thumb {
+            background: #FFB6C1;
+            border-radius: 4px;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #FFF5F8;
+            border: 1px solid #FFE4E8;
+            border-radius: 12px;
+            padding: 6px 10px;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .timeline-item:hover {
+            background: #FFEBF2;
+            border-color: #FFC0CB;
+        }
+
+        .timeline-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow: hidden;
+        }
+
+        .timeline-time-badge {
+            background: #FFE4E1;
+            color: #C71585;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 8px;
+            white-space: nowrap;
+        }
+
+        .timeline-item.is-other .timeline-time-badge {
+            background: #FFF0E6;
+            color: #D97706;
+        }
+
+        .timeline-desc {
+            color: #4A5568;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .timeline-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            margin-left: 8px;
+        }
+
+        .timeline-amount {
+            color: #FF1493;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .timeline-tag-other {
+            color: #B45309;
+            font-size: 11px;
+            background: #FEF3C7;
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .timeline-del-btn {
+            background: none;
+            border: none;
+            color: #FFB6C1;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.6;
+        }
+
+        .timeline-item:hover .timeline-del-btn,
+        .timeline-del-btn:hover {
+            color: #FF1493;
+            opacity: 1;
+            transform: scale(1.15);
+        }
+
+        .timeline-empty {
+            text-align: center;
+            color: #DB7093;
+            font-size: 12px;
+            padding: 10px 5px;
+            font-style: italic;
+        }
+
         .btn-history {
             background-color: transparent;
             color: #FF69B4;
@@ -707,6 +860,17 @@
             <div class="today-notes-list" id="todayNotesList"></div>
         </div>
 
+        <!-- Dòng thời gian uống hôm nay (Feature 5) -->
+        <div class="today-timeline-section" id="todayTimelineSection">
+            <div class="timeline-header">
+                <span>⏰ Nhật ký uống hôm nay</span>
+                <span class="timeline-count-badge" id="timelineCountBadge">0 lần</span>
+            </div>
+            <div class="timeline-list" id="todayTimelineList">
+                <div class="timeline-empty">Chưa có lần uống nào hôm nay, bà chã uống ngụm đầu tiên nha! 🌸</div>
+            </div>
+        </div>
+
         <button class="btn-history" onclick="openHistory()">📅 Coi lại ngày cũ của bà chã</button>
         <button class="btn-reset" onclick="resetWater()">🔄 Đặt lại hôm nay về 0 ml</button>
     </div>
@@ -938,6 +1102,90 @@
             alert("🔥 Chuỗi ngày ngoan ngoãn:\n\nMỗi ngày bà chã uống từ 1500ml trở lên sẽ giữ và tăng chuỗi ngày liên tiếp nha!\nCố lên mỗi ngày để chuỗi ngày càng dài nhé bà chã ưi! 💕");
         }
 
+        // --- 3. HỆ THỐNG DÒNG THỜI GIAN UỐNG NƯỚC (TIMELINE - TÍNH NĂNG 5) ---
+        let currentTimeline = [];
+
+        function renderTodayTimeline(timeline) {
+            currentTimeline = Array.isArray(timeline) ? timeline : [];
+            const listEl = document.getElementById('todayTimelineList');
+            const badgeEl = document.getElementById('timelineCountBadge');
+            if (!listEl) return;
+
+            if (badgeEl) {
+                badgeEl.innerText = `${currentTimeline.length} lần`;
+            }
+
+            if (currentTimeline.length === 0) {
+                listEl.innerHTML = '<div class="timeline-empty">Chưa có lần uống nào hôm nay, bà chã uống ngụm đầu tiên nha! 🌸</div>';
+                return;
+            }
+
+            // Hiển thị từ mới nhất đến cũ nhất
+            const reversedWithIndex = currentTimeline.map((item, originalIndex) => ({ item, originalIndex })).reverse();
+
+            listEl.innerHTML = reversedWithIndex.map(({ item, originalIndex }) => {
+                const isWater = item.type === 'water' || item.amount > 0;
+                const itemClass = isWater ? 'timeline-item' : 'timeline-item is-other';
+                const desc = escapeHtml(item.note || (isWater ? 'Nước lọc 💧' : 'Món ngoài'));
+                const amountHtml = isWater 
+                    ? `<span class="timeline-amount">+${item.amount} ml</span>`
+                    : `<span class="timeline-tag-other">Món ngoài</span>`;
+
+                return `
+                    <div class="${itemClass}">
+                        <div class="timeline-left">
+                            <span class="timeline-time-badge">⏰ ${item.time}</span>
+                            <span class="timeline-desc" title="${desc}">${desc}</span>
+                        </div>
+                        <div class="timeline-right">
+                            ${amountHtml}
+                            <button type="button" class="timeline-del-btn" title="Xóa mục này" onclick="deleteTimelineItem(${originalIndex})">&times;</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Xóa một mục trong dòng thời gian (hoàn tác ml nếu là nước lọc)
+        async function deleteTimelineItem(index) {
+            if (index < 0 || index >= currentTimeline.length) return;
+            const item = currentTimeline[index];
+            const isWater = item.type === 'water' || item.amount > 0;
+
+            const confirmMsg = isWater
+                ? `Bà chã có muốn xóa lần uống ${item.amount} ml (lúc ${item.time}) này và trừ lại ${item.amount} ml không? 🌸`
+                : `Bà chã có muốn xóa món "${item.note}" (lúc ${item.time}) khỏi nhật ký hôm nay không? 🌸`;
+
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                let response = await fetch(`${API_URL}/timeline/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ index })
+                });
+                let data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Lỗi server: ' + response.status);
+                }
+
+                if (data && data.record) {
+                    updateUI(data.record.amount);
+                    if (data.streak !== undefined) {
+                        updateStreakUI(data.streak);
+                    }
+                    if (data.record.notes) {
+                        renderTodayNotes(data.record.notes);
+                    }
+                    renderTodayTimeline(data.record.timeline || []);
+                }
+            } catch (error) {
+                console.error("Lỗi xóa dòng thời gian:", error);
+                alert("Không thể xóa:\n" + (error.message || "Mạng lỗi rồi bà chã ơi!"));
+            }
+        }
+
         // Cập nhật giao diện từ dữ liệu Database
         function updateUI(amount) {
             const currentVal = amount !== undefined && amount !== null ? amount : 0;
@@ -993,12 +1241,13 @@
                 if (data && data.notes) {
                     renderTodayNotes(data.notes);
                 }
+                renderTodayTimeline(data.timeline || []);
             } catch (error) {
                 console.error("Lỗi kết nối server:", error);
             }
         }
 
-        // Gửi lượng nước khi bấm nút
+        // Gửi lượng nước khi bấm nút (chỉ tính nước lọc)
         let isSubmitting = false;
         async function addWater(amount) {
             if (isSubmitting) return;
@@ -1006,14 +1255,11 @@
             const buttons = document.querySelectorAll('.btn-group .btn, .btn-custom-add, .btn-note-save');
             buttons.forEach(btn => btn.style.opacity = '0.6');
 
-            const noteInput = document.getElementById('drinkNoteInput');
-            const noteText = noteInput ? noteInput.value.trim() : '';
-
             try {
                 let response = await fetch(`${API_URL}/add`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount, note: noteText })
+                    body: JSON.stringify({ amount })
                 });
                 let data = await response.json();
 
@@ -1027,6 +1273,7 @@
                     if (data.record.notes) {
                         renderTodayNotes(data.record.notes);
                     }
+                    renderTodayTimeline(data.record.timeline || []);
                 }
 
                 // Cập nhật chuỗi ngày streak
@@ -1037,10 +1284,6 @@
                 // Nếu đạt mốc mới thì hiện Popup chúc mừng từ Server
                 if (data && data.milestoneReached) {
                     showAchievement(data.milestoneReached.title, data.milestoneReached.desc);
-                }
-
-                if (noteInput && noteText) {
-                    noteInput.value = '';
                 }
             } catch (error) {
                 console.error("Lỗi gửi dữ liệu:", error);
@@ -1101,8 +1344,11 @@
                     throw new Error(data.error || 'Lỗi server: ' + response.status);
                 }
 
-                if (data && data.record && data.record.notes) {
-                    renderTodayNotes(data.record.notes);
+                if (data && data.record) {
+                    if (data.record.notes) {
+                        renderTodayNotes(data.record.notes);
+                    }
+                    renderTodayTimeline(data.record.timeline || []);
                 }
                 noteInput.value = '';
             } catch (error) {
@@ -1163,6 +1409,7 @@
 
                 if (data && data.record) {
                     renderTodayNotes(data.record.notes || []);
+                    renderTodayTimeline(data.record.timeline || []);
                 }
             } catch (error) {
                 console.error("Lỗi xóa ghi chú:", error);
@@ -1261,6 +1508,8 @@
                 if (data && data.streak !== undefined) {
                     updateStreakUI(data.streak);
                 }
+                renderTodayNotes([]);
+                renderTodayTimeline([]);
                 alert("Đã đặt lại thanh tiến độ về 0 ml rùi nha! 💧");
             } catch (error) {
                 console.error("Lỗi khi reset:", error);

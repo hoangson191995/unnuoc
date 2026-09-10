@@ -32,19 +32,38 @@ app.get('/ping', (req, res) => {
 });
 
 // --- 1. KHAI BÁO SCHEMA THEO NGÀY ---
+const timelineItemSchema = new mongoose.Schema({
+    time: { type: String, required: true },     // VD: "08:30"
+    amount: { type: Number, default: 0 },       // Lượng nước lọc (ml)
+    note: { type: String, default: "Nước lọc" },// Tên món (VD: "Nước lọc 💧", "Trà đào")
+    type: { type: String, default: "water" },   // "water" (nước lọc) hoặc "other" (món ngoài nước lọc)
+    createdAt: { type: Date, default: Date.now }
+});
+
 const dayWaterSchema = new mongoose.Schema({
     dateString: { type: String, required: true, unique: true }, // VD: "09/09/2026"
     amount: { type: Number, default: 0 },                       // Tổng ml trong ngày
     checked1300: { type: Boolean, default: false },             // Đã hiện popup 1300ml chưa
     checked1500: { type: Boolean, default: false },             // Đã hiện popup 1500ml chưa
     checked2000: { type: Boolean, default: false },             // Đã hiện popup 2000ml chưa
-    notes: { type: [String], default: [] }                      // Ghi chú món uống ngoài nước lọc
+    notes: { type: [String], default: [] },                     // Ghi chú món uống ngoài nước lọc
+    timeline: { type: [timelineItemSchema], default: [] }       // Dòng thời gian trong ngày
 });
 const DayWater = mongoose.model('DayWater', dayWaterSchema);
 
 // Hàm lấy ngày theo múi giờ Việt Nam (UTC+7) để tránh lệch ngày do server Render chạy giờ UTC
 function getTodayVN() {
     return new Date().toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+}
+
+// Hàm lấy giờ phút theo múi giờ Việt Nam (UTC+7) cho dòng thời gian
+function getNowTimeVN() {
+    return new Date().toLocaleTimeString('vi-VN', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
 }
 
 // Hàm tính chuỗi ngày uống nước liên tiếp (mỗi ngày >= 1500ml)
@@ -107,7 +126,7 @@ app.get('/api/water/today', async (req, res) => {
         let record = await DayWater.findOne({ dateString: todayStr });
 
         if (!record) {
-            record = new DayWater({ dateString: todayStr, amount: 0, notes: [] });
+            record = new DayWater({ dateString: todayStr, amount: 0, notes: [], timeline: [] });
             await record.save();
         }
 
@@ -120,19 +139,20 @@ app.get('/api/water/today', async (req, res) => {
     }
 });
 
-// API thêm nước và kiểm tra mốc thành tích (hỗ trợ kèm ghi chú)
+// API thêm nước lọc và kiểm tra mốc thành tích (ghi vào dòng thời gian)
 app.post('/api/water/add', async (req, res) => {
     try {
-        const { amount, note } = req.body;
+        const { amount } = req.body;
         const todayStr = getTodayVN();
 
         let record = await DayWater.findOne({ dateString: todayStr });
         if (!record) {
-            record = new DayWater({ dateString: todayStr, amount: 0, notes: [] });
+            record = new DayWater({ dateString: todayStr, amount: 0, notes: [], timeline: [] });
         }
 
+        const addMl = Number(amount || 0);
         let oldAmount = record.amount;
-        record.amount += Number(amount || 0);
+        record.amount += addMl;
         let newAmount = record.amount;
 
         let milestoneReached = null;
@@ -149,11 +169,14 @@ app.post('/api/water/add', async (req, res) => {
             milestoneReached = { title: "🎉 Quá giỏiii!", desc: "Iu bà chãaa 💖🏆" };
         }
 
-        // Lưu ghi chú nếu có
-        if (note && typeof note === 'string' && note.trim()) {
-            if (!record.notes) record.notes = [];
-            record.notes.push(note.trim());
-        }
+        // Ghi lại vào dòng thời gian (chỉ nước lọc mới có ml)
+        if (!record.timeline) record.timeline = [];
+        record.timeline.push({
+            time: getNowTimeVN(),
+            amount: addMl,
+            note: "Nước lọc 💧",
+            type: "water"
+        });
 
         await record.save();
         const allRecords = await DayWater.find();
@@ -164,7 +187,7 @@ app.post('/api/water/add', async (req, res) => {
     }
 });
 
-// API lưu ghi chú món uống riêng lẻ
+// API lưu ghi chú món uống riêng lẻ (KHÔNG CỘNG ML)
 app.post('/api/water/note', async (req, res) => {
     try {
         const { note } = req.body;
@@ -174,10 +197,20 @@ app.post('/api/water/note', async (req, res) => {
         const todayStr = getTodayVN();
         let record = await DayWater.findOne({ dateString: todayStr });
         if (!record) {
-            record = new DayWater({ dateString: todayStr, amount: 0, notes: [] });
+            record = new DayWater({ dateString: todayStr, amount: 0, notes: [], timeline: [] });
         }
         if (!record.notes) record.notes = [];
-        record.notes.push(note.trim());
+        const cleanNote = note.trim();
+        record.notes.push(cleanNote);
+
+        // Ghi vào dòng thời gian với amount = 0 (món ngoài nước lọc)
+        if (!record.timeline) record.timeline = [];
+        record.timeline.push({
+            time: getNowTimeVN(),
+            amount: 0,
+            note: cleanNote,
+            type: "other"
+        });
 
         await record.save();
         res.status(200).json({ message: "Đã lưu ghi chú thành công!", record });
@@ -197,7 +230,14 @@ app.post('/api/water/note/delete', async (req, res) => {
             return res.status(400).json({ error: "Không tìm thấy ghi chú để xóa!" });
         }
 
-        record.notes.splice(idx, 1);
+        const removedNote = record.notes.splice(idx, 1)[0];
+        if (record.timeline && record.timeline.length > 0) {
+            const tIdx = record.timeline.findIndex(t => t.type === 'other' && t.note === removedNote);
+            if (tIdx !== -1) {
+                record.timeline.splice(tIdx, 1);
+            }
+        }
+
         await record.save();
         res.status(200).json({ message: "Đã xóa món thành công!", record });
     } catch (error) {
@@ -215,9 +255,56 @@ app.delete('/api/water/note/:index', async (req, res) => {
             return res.status(400).json({ error: "Không tìm thấy ghi chú để xóa!" });
         }
 
-        record.notes.splice(idx, 1);
+        const removedNote = record.notes.splice(idx, 1)[0];
+        if (record.timeline && record.timeline.length > 0) {
+            const tIdx = record.timeline.findIndex(t => t.type === 'other' && t.note === removedNote);
+            if (tIdx !== -1) {
+                record.timeline.splice(tIdx, 1);
+            }
+        }
+
         await record.save();
         res.status(200).json({ message: "Đã xóa món thành công!", record });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// API xóa 1 mục trong dòng thời gian hôm nay (có trừ lại ml nếu là nước lọc)
+app.post('/api/water/timeline/delete', async (req, res) => {
+    try {
+        const idx = parseInt(req.body.index, 10);
+        const todayStr = getTodayVN();
+        let record = await DayWater.findOne({ dateString: todayStr });
+
+        if (!record || !record.timeline || isNaN(idx) || idx < 0 || idx >= record.timeline.length) {
+            return res.status(400).json({ error: "Không tìm thấy mục trong dòng thời gian để xóa!" });
+        }
+
+        const item = record.timeline[idx];
+        // Nếu là nước lọc và có lượng ml > 0, trừ lại lượng nước
+        if (item.type === 'water' && item.amount > 0) {
+            record.amount = Math.max(0, record.amount - item.amount);
+            // Cập nhật lại cờ mốc nếu bị giảm xuống dưới mốc
+            if (record.amount < 2000) record.checked2000 = false;
+            if (record.amount < 1500) record.checked1500 = false;
+            if (record.amount < 1300) record.checked1300 = false;
+        } else if (item.type === 'other') {
+            // Nếu là món ngoài nước lọc, xóa khỏi mảng notes nếu có
+            if (record.notes && record.notes.length > 0) {
+                const noteIdx = record.notes.indexOf(item.note);
+                if (noteIdx !== -1) {
+                    record.notes.splice(noteIdx, 1);
+                }
+            }
+        }
+
+        record.timeline.splice(idx, 1);
+        await record.save();
+
+        const allRecords = await DayWater.find();
+        const streak = calculateStreak(allRecords, todayStr);
+        res.status(200).json({ message: "Đã xóa mục thành công!", record, streak });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -230,12 +317,14 @@ app.post('/api/water/reset', async (req, res) => {
         let record = await DayWater.findOne({ dateString: todayStr });
 
         if (!record) {
-            record = new DayWater({ dateString: todayStr, amount: 0 });
+            record = new DayWater({ dateString: todayStr, amount: 0, notes: [], timeline: [] });
         } else {
             record.amount = 0;
             record.checked1300 = false;
             record.checked1500 = false;
             record.checked2000 = false;
+            record.timeline = [];
+            record.notes = [];
         }
 
         await record.save();
