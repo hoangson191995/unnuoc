@@ -793,10 +793,405 @@
         .btn-ok:hover {
             background-color: #FF1493;
         }
+
+        /* ====================================================
+           TÍNH NĂNG 4: NÚT & GIAO DIỆN CHẾ ĐỘ NGÀY / ĐÊM
+           ==================================================== */
+        .theme-toggle-btn {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid #FFD1DC;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.25);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 999;
+            user-select: none;
+        }
+
+        .theme-toggle-btn:hover {
+            transform: scale(1.12) rotate(15deg);
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.35);
+        }
+
+        /* --- THEME BAN ĐÊM (THEME-NIGHT) --- */
+        body.theme-night {
+            background-color: #150F24;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #E9D5FF, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 60px 80px, #FDE047, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 110px 40px, #FFFFFF, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 180px 140px, #F472B6, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 260px 90px, #E9D5FF, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 330px 170px, #FFFFFF, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 360px 360px;
+            color: #F3E8FF;
+        }
+
+        body.theme-night .theme-toggle-btn {
+            background: rgba(36, 26, 56, 0.9);
+            border-color: #8B5CF6;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        body.theme-night .card {
+            background: #241A38;
+            border: 1.5px solid rgba(192, 132, 252, 0.3);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(168, 85, 247, 0.15);
+        }
+
+        body.theme-night h1 {
+            color: #F472B6;
+        }
+
+        body.theme-night .date-text {
+            background: #382752;
+            color: #E9D5FF;
+        }
+
+        body.theme-night .streak-badge {
+            background: #3B201A;
+            border-color: #9A3412;
+            color: #FB923C;
+            box-shadow: 0 2px 5px rgba(251, 146, 60, 0.15);
+        }
+
+        body.theme-night .streak-badge.active {
+            background: linear-gradient(135deg, #422018, #341812);
+            border-color: #F97316;
+        }
+
+        body.theme-night .mascot-speech {
+            background: #31234A;
+            border-color: #6B46C1;
+            color: #F3E8FF;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+        }
+
+        body.theme-night .mascot-speech:hover {
+            background: #3A2A57;
+        }
+
+        body.theme-night .mascot-speech::after {
+            border-color: transparent transparent #6B46C1 transparent;
+        }
+
+        body.theme-night .stats {
+            color: #F472B6;
+        }
+
+        body.theme-night .progress-container {
+            background-color: #362650;
+        }
+
+        body.theme-night .marker-label {
+            color: #C084FC;
+        }
+
+        body.theme-night .custom-input {
+            background: #31234A;
+            border-color: #583C82;
+            color: #F3E8FF;
+        }
+
+        body.theme-night .custom-input::placeholder {
+            color: #A78BFA;
+            opacity: 0.7;
+        }
+
+        body.theme-night .btn-custom-add {
+            background-color: #A855F7;
+        }
+
+        body.theme-night .btn-custom-add:hover {
+            background-color: #9333EA;
+        }
+
+        body.theme-night .btn-note-save {
+            background-color: #EC4899;
+        }
+
+        body.theme-night .btn-note-save:hover {
+            background-color: #DB2777;
+        }
+
+        body.theme-night .today-notes-section {
+            background: #2A1F3E;
+            border-color: #4C356F;
+        }
+
+        body.theme-night .today-notes-title {
+            color: #E9D5FF;
+        }
+
+        body.theme-night .note-badge {
+            background: #392954;
+            border-color: #6B46C1;
+            color: #F3E8FF;
+        }
+
+        body.theme-night .note-del-btn {
+            color: #A78BFA;
+        }
+
+        body.theme-night .today-timeline-section {
+            background: #231835;
+            border-color: #4C356F;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        body.theme-night .timeline-header {
+            color: #E9D5FF;
+            border-bottom-color: #4C356F;
+        }
+
+        body.theme-night .timeline-count-badge {
+            background: #3B2B56;
+            color: #F472B6;
+        }
+
+        body.theme-night .timeline-item {
+            background: #2C2043;
+            border-color: #4C356F;
+        }
+
+        body.theme-night .timeline-item:hover {
+            background: #372855;
+            border-color: #6B46C1;
+        }
+
+        body.theme-night .timeline-time-badge {
+            background: #422F61;
+            color: #E9D5FF;
+        }
+
+        body.theme-night .timeline-item.is-other .timeline-time-badge {
+            background: #42251B;
+            color: #FBBF24;
+        }
+
+        body.theme-night .timeline-desc {
+            color: #F1F5F9;
+        }
+
+        body.theme-night .timeline-amount {
+            color: #F472B6;
+        }
+
+        body.theme-night .timeline-tag-other {
+            background: #451A03;
+            color: #FBBF24;
+        }
+
+        body.theme-night .timeline-del-btn {
+            color: #A78BFA;
+        }
+
+        body.theme-night .timeline-empty {
+            color: #C084FC;
+        }
+
+        body.theme-night .btn-history {
+            border-color: #C084FC;
+            color: #E9D5FF;
+        }
+
+        body.theme-night .btn-history:hover {
+            background-color: #372A52;
+        }
+
+        body.theme-night .btn-reset {
+            border-color: #5B407E;
+            color: #C084FC;
+        }
+
+        body.theme-night .btn-reset:hover {
+            background-color: #372A52;
+            color: #F472B6;
+        }
+
+        body.theme-night .modal-content {
+            background: #241A38;
+            color: #F3E8FF;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        body.theme-night .history-item {
+            border-bottom-color: #362650;
+            color: #E9D5FF;
+        }
+
+        body.theme-night .history-notes {
+            color: #C084FC;
+        }
+
+        /* ====================================================
+           TÍNH NĂNG 6: VƯỜN HOA TÌNH YÊU (WATER GARDEN)
+           ==================================================== */
+        .water-garden-box {
+            background: linear-gradient(180deg, #FFFDFE 0%, #FFF2F6 100%);
+            border: 1.5px solid #FFD1DC;
+            border-radius: 18px;
+            padding: 10px 14px 8px 14px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(255, 182, 193, 0.22);
+            transition: all 0.3s ease;
+        }
+
+        body.theme-night .water-garden-box {
+            background: linear-gradient(180deg, #2A1D3F 0%, #201532 100%);
+            border-color: #5A3E7E;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+        }
+
+        .garden-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12.5px;
+            font-weight: bold;
+            color: #C71585;
+            margin-bottom: 6px;
+        }
+
+        body.theme-night .garden-header {
+            color: #E9D5FF;
+        }
+
+        .garden-status-badge {
+            background: #FFE4E1;
+            color: #FF1493;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        body.theme-night .garden-status-badge {
+            background: #3F2B5B;
+            color: #F472B6;
+        }
+
+        .garden-bed {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 8px 4px 4px 4px;
+        }
+
+        .garden-plot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            user-select: none;
+            position: relative;
+        }
+
+        .garden-plot:hover {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .plot-flower {
+            font-size: 26px;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+            animation: flowerGentleSway 3s ease-in-out infinite;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .garden-plot.bloomed .plot-flower {
+            animation: flowerHappyBounce 2.5s ease-in-out infinite;
+        }
+
+        @keyframes flowerGentleSway {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(3deg); }
+        }
+
+        @keyframes flowerHappyBounce {
+            0%, 100% { transform: scale(1.15) translateY(0); }
+            50% { transform: scale(1.22) translateY(-4px) rotate(4deg); }
+        }
+
+        .plot-soil {
+            width: 44px;
+            height: 10px;
+            background: #D7A87A;
+            border-radius: 50%;
+            margin-top: -3px;
+            box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.15);
+            border: 1px solid #C49163;
+        }
+
+        body.theme-night .plot-soil {
+            background: #5A3E36;
+            border-color: #4A3028;
+        }
+
+        .plot-milestone {
+            font-size: 11px;
+            color: #A06078;
+            font-weight: 600;
+            margin-top: 5px;
+            transition: color 0.3s;
+        }
+
+        body.theme-night .plot-milestone {
+            color: #C084FC;
+        }
+
+        .garden-plot.bloomed .plot-milestone {
+            color: #FF1493;
+            font-weight: bold;
+        }
+
+        body.theme-night .garden-plot.bloomed .plot-milestone {
+            color: #F472B6;
+        }
+
+        .garden-sparkles {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #FF1493;
+            font-weight: bold;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 4px 8px;
+            animation: pulseSparkle 2s infinite;
+        }
+
+        body.theme-night .garden-sparkles {
+            color: #FDE047;
+            background: rgba(50, 35, 75, 0.7);
+        }
+
+        @keyframes pulseSparkle {
+            0%, 100% { opacity: 0.9; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- Nút chuyển đổi giao diện Ngày / Đêm (Feature 4) -->
+    <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Chuyển chế độ Ngày / Đêm">☀️</button>
 
     <div class="card">
         <h1>Uống nước đi bà chã ơi! 💧</h1>
@@ -834,6 +1229,43 @@
                 <span class="marker-label label-1300" id="label1300">1300</span>
                 <span class="marker-label label-1500" id="label1500">1500</span>
                 <span class="marker-label label-2000" id="label2000">2000ml 🎯</span>
+            </div>
+        </div>
+
+        <!-- Vườn hoa tình yêu (Feature 6) -->
+        <div class="water-garden-box" id="waterGardenBox">
+            <div class="garden-header">
+                <span class="garden-title">🌸 Vườn hoa tình yêu của bà chã</span>
+                <span class="garden-status-badge" id="gardenStatusBadge">0/4 bông nở</span>
+            </div>
+            <div class="garden-bed">
+                <!-- Bông 1: 500ml -->
+                <div class="garden-plot" id="plot1" onclick="pokePlot(1)" title="500ml: Cúc Họa Mi vàng">
+                    <div class="plot-flower" id="flower1">🌱</div>
+                    <div class="plot-soil"></div>
+                    <span class="plot-milestone">500ml</span>
+                </div>
+                <!-- Bông 2: 1000ml -->
+                <div class="garden-plot" id="plot2" onclick="pokePlot(2)" title="1000ml: Tulip hồng phấn">
+                    <div class="plot-flower" id="flower2">🌱</div>
+                    <div class="plot-soil"></div>
+                    <span class="plot-milestone">1000ml</span>
+                </div>
+                <!-- Bông 3: 1500ml -->
+                <div class="garden-plot" id="plot3" onclick="pokePlot(3)" title="1500ml: Hoa Hồng nhung">
+                    <div class="plot-flower" id="flower3">🌱</div>
+                    <div class="plot-soil"></div>
+                    <span class="plot-milestone">1500ml</span>
+                </div>
+                <!-- Bông 4: 2000ml -->
+                <div class="garden-plot" id="plot4" onclick="pokePlot(4)" title="2000ml: Hoa Anh Đào vô địch">
+                    <div class="plot-flower" id="flower4">🌱</div>
+                    <div class="plot-soil"></div>
+                    <span class="plot-milestone">2000ml 🎯</span>
+                </div>
+            </div>
+            <div class="garden-sparkles" id="gardenSparkles" style="display: none;">
+                🦋 ✨ 🌸 Khu vườn nở rộ 100%! Ăm chã tặng bà chã cả rừng hoa! 🌸 ✨ 🦋
             </div>
         </div>
 
@@ -1065,6 +1497,16 @@
             if (textEl) textEl.innerText = data.messages[0];
         }
 
+        // Danh sách câu nhắn nhủ dặn dò ngọt ngào ban đêm từ ăm chã
+        const NIGHT_MESSAGES = [
+            "Tối rồi bà chã uống từng ngụm nhỏ thôi kẻo đêm dậy đi vệ sinh nhaaa 🌙✨",
+            "Ăm chã chúc bà chã ngủ ngon, mơ thấy ăm chã nhoa 💤💖",
+            "Hôm nay bà chã ngoan lắm lun á, ăm chã iu bà chã nhất trần đời! 🌸",
+            "Buổi tối ấm áp nha bà chã iu dấu của ăm chã 🌙💕",
+            "Ngoan ngoãn đi ngủ sớm cho da xinh dáng đẹp nha bà chã ơi 💤✨",
+            "Ăm chã ôm bà chã một cái thật chặt nà, ngủ ngoan nhé cục cưng! 🧸💖"
+        ];
+
         // Chạm vào bé linh vật để nghe câu nói ngẫu nhiên
         function pokeMascot() {
             const avatar = document.getElementById('mascotAvatar');
@@ -1074,9 +1516,16 @@
                 avatar.classList.add('poked');
             }
 
-            const data = MASCOT_DATA[currentMascotKey];
-            if (data && data.messages) {
-                const randomMsg = data.messages[Math.floor(Math.random() * data.messages.length)];
+            const isNight = document.body.classList.contains('theme-night');
+            let messages = MASCOT_DATA[currentMascotKey]?.messages || [];
+
+            // Nếu đang ở chế độ ban đêm, có 40% cơ hội hiện câu dặn dò đi ngủ ngọt ngào
+            if (isNight && Math.random() < 0.45) {
+                messages = NIGHT_MESSAGES;
+            }
+
+            if (messages && messages.length > 0) {
+                const randomMsg = messages[Math.floor(Math.random() * messages.length)];
                 const textEl = document.getElementById('mascotText');
                 if (textEl) textEl.innerText = randomMsg;
             }
@@ -1186,6 +1635,118 @@
             }
         }
 
+        // --- 4. HỆ THỐNG GIAO DIỆN NGÀY / ĐÊM (FEATURE 4) ---
+        function isNightTime() {
+            try {
+                const nowVN = new Date().toLocaleTimeString('vi-VN', {
+                    timeZone: 'Asia/Ho_Chi_Minh',
+                    hour: '2-digit',
+                    hour12: false
+                });
+                const hour = parseInt(nowVN, 10);
+                return (hour >= 18 || hour < 6);
+            } catch (e) {
+                const h = new Date().getHours();
+                return (h >= 18 || h < 6);
+            }
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('water_theme');
+            let isNight = false;
+            if (savedTheme === 'night') {
+                isNight = true;
+            } else if (savedTheme === 'day') {
+                isNight = false;
+            } else {
+                isNight = isNightTime();
+            }
+            applyTheme(isNight);
+        }
+
+        function applyTheme(isNight) {
+            const toggleBtn = document.getElementById('themeToggleBtn');
+            if (isNight) {
+                document.body.classList.add('theme-night');
+                if (toggleBtn) {
+                    toggleBtn.innerText = '🌙';
+                    toggleBtn.title = 'Đang là chế độ Ban Đêm (Bấm để chuyển Ban Ngày)';
+                }
+            } else {
+                document.body.classList.remove('theme-night');
+                if (toggleBtn) {
+                    toggleBtn.innerText = '☀️';
+                    toggleBtn.title = 'Đang là chế độ Ban Ngày (Bấm để chuyển Ban Đêm)';
+                }
+            }
+        }
+
+        function toggleTheme() {
+            const isNight = document.body.classList.contains('theme-night');
+            const newNightState = !isNight;
+            applyTheme(newNightState);
+            localStorage.setItem('water_theme', newNightState ? 'night' : 'day');
+        }
+
+        // --- 5. HỆ THỐNG VƯỜN HOA TÌNH YÊU (WATER GARDEN - FEATURE 6) ---
+        function updateWaterGarden(amount) {
+            const currentVal = (amount !== undefined && amount !== null) ? Number(amount) : 0;
+
+            const plots = [
+                { id: 1, milestone: 500, flower: '🌼', name: 'Cúc Họa Mi' },
+                { id: 2, milestone: 1000, flower: '🌷', name: 'Tulip hồng' },
+                { id: 3, milestone: 1500, flower: '🌹', name: 'Hoa Hồng nhung' },
+                { id: 4, milestone: 2000, flower: '🌸', name: 'Hoa Anh Đào' }
+            ];
+
+            let bloomedCount = 0;
+
+            plots.forEach(p => {
+                const plotEl = document.getElementById(`plot${p.id}`);
+                const flowerEl = document.getElementById(`flower${p.id}`);
+                if (!plotEl || !flowerEl) return;
+
+                if (currentVal >= p.milestone) {
+                    bloomedCount++;
+                    plotEl.classList.add('bloomed');
+                    flowerEl.innerText = p.flower;
+                } else {
+                    plotEl.classList.remove('bloomed');
+                    flowerEl.innerText = '🌱';
+                }
+            });
+
+            const badgeEl = document.getElementById('gardenStatusBadge');
+            if (badgeEl) {
+                badgeEl.innerText = `${bloomedCount}/4 bông nở`;
+            }
+
+            const sparklesEl = document.getElementById('gardenSparkles');
+            if (sparklesEl) {
+                sparklesEl.style.display = (bloomedCount === 4) ? 'block' : 'none';
+            }
+        }
+
+        function pokePlot(id) {
+            const info = {
+                1: "🌼 Đóa Cúc Họa Mi hé nở khi bà chã uống đủ 500ml nước nè! Cố lên bà chã ơi! ✨",
+                2: "🌷 Đóa Tulip hồng ngọt ngào bừng nở ở mốc 1000ml nước nà! Tuyệt vời quá chừng! 💕",
+                3: "🌹 Đóa Hoa Hồng nhung thắm thiết nở rực rỡ khi bà chã đạt mốc 1500ml! Đạt chuẩn ăm chã duyệt rùi! 💖",
+                4: "🌸 Đóa Hoa Anh Đào hoàng gia đón chào bà chã đạt trọn vẹn 2000ml! Vô địch uống nước lun! 👑🏆"
+            };
+
+            const plotEl = document.getElementById(`plot${id}`);
+            if (plotEl) {
+                plotEl.style.transform = 'scale(1.25) rotate(-8deg)';
+                setTimeout(() => { plotEl.style.transform = ''; }, 350);
+            }
+
+            const textEl = document.getElementById('mascotText');
+            if (textEl && info[id]) {
+                textEl.innerText = info[id];
+            }
+        }
+
         // Cập nhật giao diện từ dữ liệu Database
         function updateUI(amount) {
             const currentVal = amount !== undefined && amount !== null ? amount : 0;
@@ -1196,6 +1757,9 @@
 
             // Cập nhật linh vật cảm xúc
             updateMascot(currentVal);
+
+            // Cập nhật Vườn hoa tình yêu (Feature 6)
+            updateWaterGarden(currentVal);
 
             // Cập nhật vạch và nhãn mốc tương ứng khi đạt tới
             const m1300 = document.getElementById('marker1300');
@@ -1522,6 +2086,9 @@
         function closeHistory() {
             document.getElementById('historyModal').style.display = 'none';
         }
+
+        // Khởi tạo chế độ ngày đêm
+        initTheme();
 
         // Chạy lấy dữ liệu ngay khi load trang
         fetchTodayData();
