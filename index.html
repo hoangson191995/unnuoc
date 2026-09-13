@@ -2349,9 +2349,15 @@
                         badgeHtml = `<span class="collection-card-badge badge-missed">🥀 Chưa nở (${item.completedDays}/7)</span>`;
                     }
 
-                    const iconToShow = (item.isFullyGrown || item.isCurrentWeek) ? item.stageIcon : '🌰';
-                    const titleToShow = item.isFullyGrown ? `${item.plant.name}` : (item.isCurrentWeek ? `Hạt giống tuần này: ${item.plant.name}` : 'Cây bí ẩn chưa hé lộ');
-                    const descToShow = item.isFullyGrown ? item.plant.desc : `Tuần này bà chã hoàn thành ${item.completedDays}/7 ngày ≥1500ml.`;
+                    const iconToShow = item.isFullyGrown ? item.stageIcon : (item.isCurrentWeek ? item.stageIcon : '🌰');
+                    const titleToShow = item.isFullyGrown 
+                        ? `${item.plant.name}` 
+                        : (item.isCurrentWeek ? 'Hạt giống bí ẩn tuần này 🌰' : 'Cây bí ẩn chưa hé lộ');
+                    const descToShow = item.isFullyGrown 
+                        ? item.plant.desc 
+                        : (item.isCurrentWeek 
+                            ? `Cần thêm ${Math.max(0, 4 - item.completedDays)} ngày ≥1500ml để cây hé lộ danh tính nha bà chã! 💧✨` 
+                            : `Tuần này bà chã hoàn thành ${item.completedDays}/7 ngày ≥1500ml.`);
 
                     return `
                         <div class="collection-card ${cardClass}">
