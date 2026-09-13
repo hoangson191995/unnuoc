@@ -117,9 +117,98 @@ function calculateStreak(records, todayStr) {
     return streak;
 }
 
+// Danh mục 8 loài cây kỳ diệu bí ẩn xoay vòng theo tuần
+const PLANTS_CATALOG = [
+    { id: "sunflower", name: "Cây Hướng Dương Mặt Trời", icon: "🌻", desc: "Bà chã luôn tỏa nắng rạng rỡ sưởi ấm trái tim ăm chã ☀️" },
+    { id: "candy", name: "Cây Kẹo Ngọt Tình Yêu", icon: "🍭", desc: "Ngọt ngào như tình cảm của ăm chã dành riêng cho bà chã 🍬" },
+    { id: "heart", name: "Cây Trái Tim Vĩnh Cửu", icon: "💖", desc: "Từng chiếc lá đều là một nhịp tim ăm chã rung động vì bà chã 💕" },
+    { id: "milktea", name: "Cây Trà Sữa Thần Kỳ", icon: "🧋", desc: "Bà chã chăm uống nước ngoan là cây biến ra ly trà sữa thơm lừng 🥤" },
+    { id: "cherry", name: "Cây Hoa Anh Đào Mộng Mơ", icon: "🌸", desc: "Xinh xắn, dịu dàng và đáng yêu y hệt bà chã vậy đó 🌸" },
+    { id: "strawberry", name: "Cây Dâu Tây Ngọt Lịm", icon: "🍓", desc: "Trái dâu chín mọng ngọt lành tiếp thêm vitamin da xinh cho bà chã 🍓" },
+    { id: "clover", name: "Cây Cỏ Bốn Lá May Mắn", icon: "🍀", desc: "Mang lại vạn điều may mắn và niềm vui tới bà chã mỗi ngày 🍀" },
+    { id: "crystal", name: "Cây Pha Lê Băng Tuyết", icon: "💎", desc: "Lấp lánh và quý giá nhất trần đời trong mắt ăm chã 💎✨" }
+];
+
+// Hàm tính toán Cây Kỳ Diệu của tuần hiện tại
+function calculateWeeklyPlant(allRecords, todayStr) {
+    function normalizeDateStr(str) {
+        if (!str) return '';
+        const parts = str.split('/').map(Number);
+        if (parts.length !== 3 || parts.some(isNaN)) return str;
+        return `${parts[0]}/${parts[1]}/${parts[2]}`;
+    }
+
+    const recordMap = new Map();
+    allRecords.forEach(r => {
+        if (r.dateString) {
+            recordMap.set(normalizeDateStr(r.dateString), r.amount);
+        }
+    });
+
+    const [d, m, y] = todayStr.split('/').map(Number);
+    const todayDate = new Date(y, m - 1, d);
+    const dayOfWeek = todayDate.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(todayDate);
+    monday.setDate(todayDate.getDate() + diffToMonday);
+
+    const oneJan = new Date(monday.getFullYear(), 0, 1);
+    const numberOfDays = Math.floor((monday - oneJan) / (24 * 60 * 60 * 1000));
+    const weekNum = Math.ceil((monday.getDay() + 1 + numberOfDays) / 7);
+    const weekId = `${monday.getFullYear()}-W${weekNum}`;
+
+    const plantIndex = Math.abs(weekNum) % PLANTS_CATALOG.length;
+    const plant = PLANTS_CATALOG[plantIndex];
+
+    const days = [];
+    const dayNames = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+    let completedDays = 0;
+
+    for (let i = 0; i < 7; i++) {
+        const curDate = new Date(monday);
+        curDate.setDate(monday.getDate() + i);
+        const normKey = `${curDate.getDate()}/${curDate.getMonth() + 1}/${curDate.getFullYear()}`;
+        const displayDateStr = `${String(curDate.getDate()).padStart(2, '0')}/${String(curDate.getMonth() + 1).padStart(2, '0')}/${curDate.getFullYear()}`;
+        const amount = recordMap.get(normKey) || 0;
+        const isCompleted = amount >= 1500;
+        if (isCompleted) completedDays++;
+
+        const isToday = (normKey === normalizeDateStr(todayStr));
+        const isPast = curDate < todayDate && !isToday;
+
+        days.push({
+            label: dayNames[i],
+            dateString: displayDateStr,
+            amount,
+            completed: isCompleted,
+            isToday,
+            isPast
+        });
+    }
+
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    const weekRange = `${String(monday.getDate()).padStart(2, '0')}/${String(monday.getMonth() + 1).padStart(2, '0')} - ${String(sunday.getDate()).padStart(2, '0')}/${String(sunday.getMonth() + 1).padStart(2, '0')}`;
+
+    const STAGE_ICONS = ["🌰", "🌱", "🌿", "🪴", "🌷", "🌺", "💐", plant.icon];
+    const stageIcon = completedDays >= 7 ? plant.icon : STAGE_ICONS[completedDays];
+
+    return {
+        weekId,
+        weekRange,
+        weekNum,
+        plant,
+        completedDays,
+        stageIcon,
+        isFullyGrown: completedDays >= 4,
+        isMaster: completedDays === 7,
+        days
+    };
+}
+
 // --- 2. CÁC API ROUTING ---
 
-// API lấy dữ liệu ngày hôm nay (kèm chuỗi ngày streak)
+// API lấy dữ liệu ngày hôm nay (kèm chuỗi streak & cây tuần)
 app.get('/api/water/today', async (req, res) => {
     try {
         const todayStr = getTodayVN();
@@ -132,8 +221,9 @@ app.get('/api/water/today', async (req, res) => {
 
         const allRecords = await DayWater.find();
         const streak = calculateStreak(allRecords, todayStr);
+        const weeklyPlant = calculateWeeklyPlant(allRecords, todayStr);
 
-        res.status(200).json({ ...record.toObject(), streak });
+        res.status(200).json({ ...record.toObject(), streak, weeklyPlant });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -181,7 +271,8 @@ app.post('/api/water/add', async (req, res) => {
         await record.save();
         const allRecords = await DayWater.find();
         const streak = calculateStreak(allRecords, todayStr);
-        res.status(200).json({ record, milestoneReached, streak });
+        const weeklyPlant = calculateWeeklyPlant(allRecords, todayStr);
+        res.status(200).json({ record, milestoneReached, streak, weeklyPlant });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -304,7 +395,8 @@ app.post('/api/water/timeline/delete', async (req, res) => {
 
         const allRecords = await DayWater.find();
         const streak = calculateStreak(allRecords, todayStr);
-        res.status(200).json({ message: "Đã xóa mục thành công!", record, streak });
+        const weeklyPlant = calculateWeeklyPlant(allRecords, todayStr);
+        res.status(200).json({ message: "Đã xóa mục thành công!", record, streak, weeklyPlant });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -330,7 +422,8 @@ app.post('/api/water/reset', async (req, res) => {
         await record.save();
         const allRecords = await DayWater.find();
         const streak = calculateStreak(allRecords, todayStr);
-        res.status(200).json({ message: "Đã đặt lại về 0 ml thành công!", record, streak });
+        const weeklyPlant = calculateWeeklyPlant(allRecords, todayStr);
+        res.status(200).json({ message: "Đã đặt lại về 0 ml thành công!", record, streak, weeklyPlant });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -341,6 +434,102 @@ app.get('/api/water/history', async (req, res) => {
     try {
         const history = await DayWater.find().sort({ _id: -1 });
         res.status(200).json(history);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// API lấy danh sách các tuần và cây thu thập (cho Kệ Sưu Tập Cây)
+app.get('/api/water/weekly-collection', async (req, res) => {
+    try {
+        const todayStr = getTodayVN();
+        const allRecords = await DayWater.find();
+
+        function normalizeDateStr(str) {
+            if (!str) return '';
+            const parts = str.split('/').map(Number);
+            if (parts.length !== 3 || parts.some(isNaN)) return str;
+            return `${parts[0]}/${parts[1]}/${parts[2]}`;
+        }
+
+        const recordMap = new Map();
+        allRecords.forEach(r => {
+            if (r.dateString) {
+                recordMap.set(normalizeDateStr(r.dateString), r.amount);
+            }
+        });
+
+        const [td, tm, ty] = todayStr.split('/').map(Number);
+        const todayDate = new Date(ty, tm - 1, td);
+        const curDayOfWeek = todayDate.getDay();
+        const curDiffToMonday = curDayOfWeek === 0 ? -6 : 1 - curDayOfWeek;
+        const currentMonday = new Date(todayDate);
+        currentMonday.setDate(todayDate.getDate() + curDiffToMonday);
+        currentMonday.setHours(0, 0, 0, 0);
+
+        const weekMap = new Map();
+        weekMap.set(currentMonday.getTime(), new Date(currentMonday));
+
+        allRecords.forEach(r => {
+            if (!r.dateString) return;
+            const parts = r.dateString.split('/').map(Number);
+            if (parts.length !== 3 || parts.some(isNaN)) return;
+            const d = new Date(parts[2], parts[1] - 1, parts[0]);
+            const dow = d.getDay();
+            const diff = dow === 0 ? -6 : 1 - dow;
+            const mon = new Date(d);
+            mon.setDate(d.getDate() + diff);
+            mon.setHours(0, 0, 0, 0);
+            weekMap.set(mon.getTime(), mon);
+        });
+
+        const sortedMondayTimes = Array.from(weekMap.keys()).sort((a, b) => b - a);
+
+        const collection = sortedMondayTimes.map(monTime => {
+            const monday = weekMap.get(monTime);
+            const isCurrentWeek = (monTime === currentMonday.getTime());
+
+            const oneJan = new Date(monday.getFullYear(), 0, 1);
+            const numberOfDays = Math.floor((monday - oneJan) / (24 * 60 * 60 * 1000));
+            const weekNum = Math.ceil((monday.getDay() + 1 + numberOfDays) / 7);
+            const weekId = `${monday.getFullYear()}-W${weekNum}`;
+
+            const plantIndex = Math.abs(weekNum) % PLANTS_CATALOG.length;
+            const plant = PLANTS_CATALOG[plantIndex];
+
+            let completedDays = 0;
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            const weekRange = `${String(monday.getDate()).padStart(2, '0')}/${String(monday.getMonth() + 1).padStart(2, '0')} - ${String(sunday.getDate()).padStart(2, '0')}/${String(sunday.getMonth() + 1).padStart(2, '0')}/${monday.getFullYear()}`;
+
+            for (let i = 0; i < 7; i++) {
+                const cur = new Date(monday);
+                cur.setDate(monday.getDate() + i);
+                const normKey = `${cur.getDate()}/${cur.getMonth() + 1}/${cur.getFullYear()}`;
+                if ((recordMap.get(normKey) || 0) >= 1500) {
+                    completedDays++;
+                }
+            }
+
+            const isFullyGrown = completedDays >= 4;
+            const isMaster = completedDays === 7;
+            const STAGE_ICONS = ["🌰", "🌱", "🌿", "🪴", "🌷", "🌺", "💐", plant.icon];
+            const stageIcon = completedDays >= 7 ? plant.icon : STAGE_ICONS[completedDays];
+
+            return {
+                weekId,
+                weekRange,
+                weekNum,
+                plant,
+                completedDays,
+                stageIcon,
+                isFullyGrown,
+                isMaster,
+                isCurrentWeek
+            };
+        });
+
+        res.status(200).json(collection);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -1185,6 +1185,404 @@
             0%, 100% { opacity: 0.9; transform: scale(1); }
             50% { opacity: 1; transform: scale(1.02); }
         }
+
+        /* ====================================================
+           TÍNH NĂNG 4: CÂY KỲ DIỆU 7 NGÀY (WEEKLY MYSTERY PLANT)
+           ==================================================== */
+        .weekly-plant-box {
+            box-sizing: border-box;
+            background: linear-gradient(180deg, #F0FDF4 0%, #E6F7F0 100%);
+            border: 1.5px solid #BBF7D0;
+            border-radius: 18px;
+            padding: 10px 12px 10px 12px;
+            margin-bottom: 18px;
+            box-shadow: 0 4px 12px rgba(134, 239, 172, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .weekly-plant-box * {
+            box-sizing: border-box;
+        }
+
+        body.theme-night .weekly-plant-box {
+            background: linear-gradient(180deg, #162B28 0%, #0D1C1A 100%);
+            border-color: #1F4D45;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+        }
+
+        .weekly-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12.5px;
+            font-weight: bold;
+            color: #047857;
+            margin-bottom: 8px;
+        }
+
+        body.theme-night .weekly-header {
+            color: #34D399;
+        }
+
+        .weekly-badge {
+            background: #DCFCE7;
+            color: #15803D;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        body.theme-night .weekly-badge {
+            background: #14532D;
+            color: #86EFAC;
+        }
+
+        .weekly-plant-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 14px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(187, 247, 208, 0.6);
+        }
+
+        body.theme-night .weekly-plant-display {
+            background: rgba(24, 45, 41, 0.85);
+            border-color: #1F4D45;
+        }
+
+        .weekly-avatar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            min-width: 48px;
+        }
+
+        .weekly-avatar-container:hover {
+            transform: scale(1.18) rotate(4deg);
+        }
+
+        .weekly-avatar {
+            font-size: 32px;
+            line-height: 1;
+            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.12));
+            animation: plantGentleFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes plantGentleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .weekly-pot {
+            font-size: 14px;
+            line-height: 1;
+            margin-top: -3px;
+            opacity: 0.9;
+        }
+
+        .weekly-info {
+            text-align: left;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .weekly-plant-name {
+            font-size: 13px;
+            font-weight: bold;
+            color: #064E3B;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        body.theme-night .weekly-plant-name {
+            color: #A7F3D0;
+        }
+
+        .weekly-plant-desc {
+            font-size: 11px;
+            color: #4B5563;
+            line-height: 1.3;
+            margin-bottom: 3px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        body.theme-night .weekly-plant-desc {
+            color: #9CA3AF;
+        }
+
+        .weekly-date-range {
+            font-size: 10px;
+            color: #6B7280;
+            font-weight: 600;
+        }
+
+        body.theme-night .weekly-date-range {
+            color: #9CA3AF;
+        }
+
+        /* Thanh 7 ngày */
+        .weekly-days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .weekly-day-pill {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4px 1px;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1.5px solid #E5E7EB;
+            font-size: 10px;
+            transition: all 0.2s ease;
+        }
+
+        body.theme-night .weekly-day-pill {
+            background: #1B3531;
+            border-color: #244842;
+            color: #D1D5DB;
+        }
+
+        .weekly-day-pill.is-today {
+            border-color: #059669;
+            background: #ECFDF5;
+            font-weight: bold;
+            box-shadow: 0 0 0 1.5px rgba(5, 150, 105, 0.25);
+        }
+
+        body.theme-night .weekly-day-pill.is-today {
+            border-color: #34D399;
+            background: #144439;
+            box-shadow: 0 0 0 1.5px rgba(52, 211, 153, 0.3);
+        }
+
+        .weekly-day-pill.completed {
+            background: linear-gradient(180deg, #D1FAE5 0%, #A7F3D0 100%);
+            border-color: #6EE7B7;
+            color: #065F46;
+        }
+
+        body.theme-night .weekly-day-pill.completed {
+            background: linear-gradient(180deg, #064E3B 0%, #022C22 100%);
+            border-color: #059669;
+            color: #6EE7B7;
+        }
+
+        .weekly-day-name {
+            font-weight: 700;
+            font-size: 9.5px;
+            margin-bottom: 1px;
+        }
+
+        .weekly-day-status {
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        /* Nút Kệ Sưu Tập */
+        .btn-weekly-collection {
+            width: 100%;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 7px 12px;
+            border-radius: 12px;
+            font-size: 11.5px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(16, 185, 129, 0.25);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn-weekly-collection:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-weekly-collection:active {
+            transform: scale(0.97);
+        }
+
+        body.theme-night .btn-weekly-collection {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Modal Kệ Sưu Tập */
+        .weekly-collection-content {
+            max-width: 380px !important;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 20px 16px !important;
+        }
+
+        .collection-subtitle {
+            font-size: 11.5px;
+            color: #6B7280;
+            margin: -4px 0 12px 0;
+            text-align: center;
+        }
+
+        body.theme-night .collection-subtitle {
+            color: #9CA3AF;
+        }
+
+        .collection-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
+        }
+
+        .collection-loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 12.5px;
+            color: #9CA3AF;
+        }
+
+        .collection-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #F9FAFB;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 9px 12px;
+            transition: all 0.2s ease;
+        }
+
+        body.theme-night .collection-card {
+            background: #1E293B;
+            border-color: #334155;
+        }
+
+        .collection-card.is-unlocked {
+            border-color: #6EE7B7;
+            background: linear-gradient(135deg, #ECFDF5 0%, #F9FAFB 100%);
+        }
+
+        body.theme-night .collection-card.is-unlocked {
+            background: linear-gradient(135deg, #064E3B 0%, #1E293B 100%);
+            border-color: #059669;
+        }
+
+        .collection-icon-wrap {
+            font-size: 28px;
+            min-width: 38px;
+            text-align: center;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .collection-card-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .collection-card-title {
+            font-size: 12.5px;
+            font-weight: bold;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        body.theme-night .collection-card-title {
+            color: #F9FAFB;
+        }
+
+        .collection-card-badge {
+            font-size: 10px;
+            padding: 1.5px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-master {
+            background: #FEF3C7;
+            color: #B45309;
+        }
+
+        body.theme-night .badge-master {
+            background: #78350F;
+            color: #FDE68A;
+        }
+
+        .badge-grown {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        body.theme-night .badge-grown {
+            background: #064E3B;
+            color: #A7F3D0;
+        }
+
+        .badge-growing {
+            background: #E0E7FF;
+            color: #4338CA;
+        }
+
+        body.theme-night .badge-growing {
+            background: #312E81;
+            color: #C7D2FE;
+        }
+
+        .badge-missed {
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+
+        body.theme-night .badge-missed {
+            background: #334155;
+            color: #9CA3AF;
+        }
+
+        .collection-card-desc {
+            font-size: 11px;
+            color: #4B5563;
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+
+        body.theme-night .collection-card-desc {
+            color: #9CA3AF;
+        }
+
+        .collection-card-meta {
+            font-size: 10px;
+            color: #9CA3AF;
+            margin-top: 3px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        body.theme-night .collection-card-meta {
+            color: #6B7280;
+        }
     </style>
 </head>
 
@@ -1269,6 +1667,39 @@
             </div>
         </div>
 
+        <!-- Cây Kỳ Diệu 7 Ngày (Feature 4 - Weekly Mystery Plant) -->
+        <div class="weekly-plant-box" id="weeklyPlantBox">
+            <div class="weekly-header">
+                <span class="weekly-title">🪴 Cây Kỳ Diệu Tuần Này</span>
+                <span class="weekly-badge" id="weeklyBadge">Đang lớn 0/7</span>
+            </div>
+            <div class="weekly-plant-display">
+                <div class="weekly-avatar-container" onclick="pokeWeeklyPlant()" title="Chạm nhẹ để cây rung rinh nè!">
+                    <div class="weekly-avatar" id="weeklyAvatar">🌰</div>
+                    <div class="weekly-pot">🪴</div>
+                </div>
+                <div class="weekly-info">
+                    <div class="weekly-plant-name" id="weeklyPlantName">Hạt Giống Bí Ẩn 🌰</div>
+                    <div class="weekly-plant-desc" id="weeklyPlantDesc">Mỗi ngày bà chã uống đủ từ 1500ml là tưới 1 giọt sương cho cây lớn nha! 💧</div>
+                    <div class="weekly-date-range" id="weeklyRange">Tuần này</div>
+                </div>
+            </div>
+            <!-- Thanh 7 ngày trong tuần -->
+            <div class="weekly-days-grid" id="weeklyDaysGrid">
+                <div class="weekly-day-pill"><span class="weekly-day-name">T2</span><span class="weekly-day-status">🌱</span></div>
+                <div class="weekly-day-pill"><span class="weekly-day-name">T3</span><span class="weekly-day-status">🌱</span></div>
+                <div class="weekly-day-pill"><span class="weekly-day-name">T4</span><span class="weekly-day-status">🌱</span></div>
+                <div class="weekly-day-pill"><span class="weekly-day-name">T5</span><span class="weekly-day-status">🌱</span></div>
+                <div class="weekly-day-pill"><span class="weekly-day-name">T6</span><span class="weekly-day-status">🌱</span></div>
+                <div class="weekly-day-pill"><span class="weekly-day-name">T7</span><span class="weekly-day-status">🌱</span></div>
+                <div class="weekly-day-pill"><span class="weekly-day-name">CN</span><span class="weekly-day-status">🌱</span></div>
+            </div>
+            <!-- Nút mở Kệ Sưu Tập Cây -->
+            <button type="button" class="btn-weekly-collection" onclick="openWeeklyCollection()">
+                🏆 Kệ Sưu Tập Cây Kỳ Diệu
+            </button>
+        </div>
+
         <div class="btn-group">
             <button class="btn" onclick="addWater(150)">🥤 150ml</button>
             <button class="btn" onclick="addWater(250)">☕ 250ml</button>
@@ -1325,6 +1756,20 @@
             <h3 class="modal-title" style="text-align: center; margin-bottom: 10px;" id="achieveTitle">Tuyệt vời!</h3>
             <p class="achievement-text" id="achieveDesc">Nội dung thông báo...</p>
             <button class="btn-ok" onclick="closeAchievement()">Dạaa ăm chãa! 💕</button>
+        </div>
+    </div>
+
+    <!-- Popup Kệ Sưu Tập Cây Kỳ Diệu (Feature 4) -->
+    <div class="modal-overlay" id="weeklyCollectionModal" onclick="if(event.target===this) closeWeeklyCollection()">
+        <div class="modal-content weekly-collection-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🏆 Kệ Cây Kỳ Diệu 🪴</h2>
+                <button class="close-btn" onclick="closeWeeklyCollection()">&times;</button>
+            </div>
+            <p class="collection-subtitle">Bộ sưu tập cây thần kỳ bà chã đã nuôi lớn qua từng tuần 💕</p>
+            <div class="collection-list" id="weeklyCollectionList">
+                <div class="collection-loading">Đang mở kệ hoa kỳ diệu của bà chã... 🌸✨</div>
+            </div>
         </div>
     </div>
 
@@ -1624,6 +2069,9 @@
                     if (data.streak !== undefined) {
                         updateStreakUI(data.streak);
                     }
+                    if (data.weeklyPlant) {
+                        updateWeeklyPlantUI(data.weeklyPlant);
+                    }
                     if (data.record.notes) {
                         renderTodayNotes(data.record.notes);
                     }
@@ -1747,6 +2195,192 @@
             }
         }
 
+        // --- 6. HỆ THỐNG CÂY KỲ DIỆU 7 NGÀY (WEEKLY MYSTERY PLANT - FEATURE 4) ---
+        let currentWeeklyData = null;
+
+        function updateWeeklyPlantUI(weeklyData) {
+            if (!weeklyData) return;
+            currentWeeklyData = weeklyData;
+
+            const { plant, completedDays, stageIcon, isFullyGrown, isMaster, days, weekRange } = weeklyData;
+
+            // Avatar & Chậu cây
+            const avatarEl = document.getElementById('weeklyAvatar');
+            if (avatarEl) {
+                avatarEl.innerText = stageIcon || plant.icon;
+            }
+
+            // Tên, mô tả, khoảng ngày, huy hiệu
+            const nameEl = document.getElementById('weeklyPlantName');
+            const descEl = document.getElementById('weeklyPlantDesc');
+            const rangeEl = document.getElementById('weeklyRange');
+            const badgeEl = document.getElementById('weeklyBadge');
+
+            if (nameEl) {
+                if (isFullyGrown) {
+                    nameEl.innerText = `${plant.icon} ${plant.name}`;
+                } else {
+                    const STAGE_NAMES = [
+                        "Hạt Giống Bí Ẩn 🌰",
+                        "Mầm Non Bé Nhỏ 🌱",
+                        "Chồi Xanh Mơn Mởn 🌿",
+                        "Cây Con Vươn Cao 🪴",
+                        "Nụ Hoa Đang Hé 🌷",
+                        "Hoa Nở Xinh Tươi 🌺",
+                        "Bụi Cây Đơm Bông 💐",
+                        plant.name
+                    ];
+                    nameEl.innerText = STAGE_NAMES[Math.min(completedDays, 7)];
+                }
+            }
+
+            if (descEl) {
+                if (isFullyGrown) {
+                    descEl.innerText = plant.desc;
+                } else {
+                    const daysNeeded = Math.max(0, 4 - completedDays);
+                    descEl.innerText = `Cần thêm ${daysNeeded} ngày uống đủ ≥1500ml để cây kỳ diệu hé lộ hình dáng thật nha bà chã! 💧✨`;
+                }
+            }
+
+            if (rangeEl) {
+                rangeEl.innerText = `Tuần: ${weekRange}`;
+            }
+
+            if (badgeEl) {
+                if (isMaster) {
+                    badgeEl.innerText = `🏆 Hoàn hảo 7/7!`;
+                } else if (isFullyGrown) {
+                    badgeEl.innerText = `🌸 Đã nở (${completedDays}/7)`;
+                } else {
+                    badgeEl.innerText = `Đang lớn (${completedDays}/7)`;
+                }
+            }
+
+            // Render 7-day pills
+            const gridEl = document.getElementById('weeklyDaysGrid');
+            if (gridEl && Array.isArray(days)) {
+                gridEl.innerHTML = days.map(d => {
+                    const completedClass = d.completed ? 'completed' : '';
+                    const todayClass = d.isToday ? 'is-today' : '';
+                    const statusIcon = d.completed ? '💧' : (d.isPast ? '🥀' : '🌱');
+                    const tooltip = `${d.label} (${d.dateString}): ${d.amount}ml ${d.completed ? ' (Đạt chuẩn 🌸)' : ''}`;
+                    return `
+                        <div class="weekly-day-pill ${completedClass} ${todayClass}" title="${tooltip}">
+                            <span class="weekly-day-name">${d.label}</span>
+                            <span class="weekly-day-status">${statusIcon}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function pokeWeeklyPlant() {
+            const avatarWrap = document.querySelector('.weekly-avatar-container');
+            if (avatarWrap) {
+                avatarWrap.style.transform = 'scale(1.25) rotate(-10deg)';
+                setTimeout(() => {
+                    avatarWrap.style.transform = '';
+                }, 350);
+            }
+
+            const textEl = document.getElementById('mascotText');
+            if (!textEl) return;
+
+            if (!currentWeeklyData) {
+                textEl.innerText = "Cây kỳ diệu đang hấp thu sương sớm, bà chã uống nước chăm chỉ để cây lớn nhé! 🪴💧";
+                return;
+            }
+
+            const { plant, completedDays, isFullyGrown, isMaster } = currentWeeklyData;
+            if (isMaster) {
+                textEl.innerText = `🎉 Wowww! Bà chã xuất sắc tưới đủ cả 7 ngày! ${plant.name} tỏa hương thơm ngát khen bà chã siêu cấp ngoan nè! 👑✨`;
+            } else if (isFullyGrown) {
+                textEl.innerText = `🌸 ${plant.name} đã bừng nở rực rỡ rồi nè bà chã! ${plant.desc}`;
+            } else {
+                const cheerMessages = [
+                    `Cây con thì thầm: "Mỗi ngày bà chã uống đủ 1500ml là em lớn thêm một bậc đó ạ!" 🌿`,
+                    `Hạt mầm đang nảy chồi xinh xắn! Bà chã uống thêm ngụm nước mát cho em mau lớn nhe! 💧`,
+                    `Cố lên bà chã ơi! Cây tuần này là một điều bất ngờ siêu ngọt ngào ăm chã dành cho bà chã đó! 🎁`
+                ];
+                textEl.innerText = cheerMessages[Math.floor(Math.random() * cheerMessages.length)];
+            }
+        }
+
+        async function openWeeklyCollection() {
+            const modal = document.getElementById('weeklyCollectionModal');
+            const listEl = document.getElementById('weeklyCollectionList');
+            if (!modal || !listEl) return;
+
+            modal.style.display = 'flex';
+            listEl.innerHTML = '<div class="collection-loading">Đang mở kệ hoa kỳ diệu của bà chã... 🌸✨</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/weekly-collection`);
+                const collection = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(collection.error || 'Lỗi server: ' + response.status);
+                }
+
+                if (!collection || collection.length === 0) {
+                    listEl.innerHTML = '<div class="collection-loading">Chưa có tuần nào hoàn thành, tuần này cùng nuôi cây nha bà chã! 🪴</div>';
+                    return;
+                }
+
+                listEl.innerHTML = collection.map(item => {
+                    let badgeHtml = '';
+                    let cardClass = '';
+
+                    if (item.isCurrentWeek) {
+                        cardClass = 'is-unlocked';
+                        badgeHtml = item.isMaster 
+                            ? '<span class="collection-card-badge badge-master">🏆 Tuần này: 7/7</span>'
+                            : (item.isFullyGrown 
+                                ? `<span class="collection-card-badge badge-grown">🌸 Đã nở (${item.completedDays}/7)</span>`
+                                : `<span class="collection-card-badge badge-growing">🪴 Đang nuôi (${item.completedDays}/7)</span>`);
+                    } else if (item.isMaster) {
+                        cardClass = 'is-unlocked';
+                        badgeHtml = '<span class="collection-card-badge badge-master">🏆 Hoàn hảo 7/7</span>';
+                    } else if (item.isFullyGrown) {
+                        cardClass = 'is-unlocked';
+                        badgeHtml = `<span class="collection-card-badge badge-grown">🌸 Đã mở (${item.completedDays}/7)</span>`;
+                    } else {
+                        badgeHtml = `<span class="collection-card-badge badge-missed">🥀 Chưa nở (${item.completedDays}/7)</span>`;
+                    }
+
+                    const iconToShow = (item.isFullyGrown || item.isCurrentWeek) ? item.stageIcon : '🌰';
+                    const titleToShow = item.isFullyGrown ? `${item.plant.name}` : (item.isCurrentWeek ? `Hạt giống tuần này: ${item.plant.name}` : 'Cây bí ẩn chưa hé lộ');
+                    const descToShow = item.isFullyGrown ? item.plant.desc : `Tuần này bà chã hoàn thành ${item.completedDays}/7 ngày ≥1500ml.`;
+
+                    return `
+                        <div class="collection-card ${cardClass}">
+                            <div class="collection-icon-wrap">${iconToShow}</div>
+                            <div class="collection-card-details">
+                                <div class="collection-card-title">
+                                    <span>${escapeHtml(titleToShow)}</span>
+                                    ${badgeHtml}
+                                </div>
+                                <div class="collection-card-desc">${escapeHtml(descToShow)}</div>
+                                <div class="collection-card-meta">
+                                    <span>🗓️ ${item.weekRange}</span>
+                                    <span>💧 Đạt: ${item.completedDays}/7 ngày</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error("Lỗi lấy bộ sưu tập:", err);
+                listEl.innerHTML = `<div class="collection-loading">Không thể tải kệ sưu tập (${err.message})!</div>`;
+            }
+        }
+
+        function closeWeeklyCollection() {
+            const modal = document.getElementById('weeklyCollectionModal');
+            if (modal) modal.style.display = 'none';
+        }
+
         // Cập nhật giao diện từ dữ liệu Database
         function updateUI(amount) {
             const currentVal = amount !== undefined && amount !== null ? amount : 0;
@@ -1802,6 +2436,9 @@
                 if (data && data.streak !== undefined) {
                     updateStreakUI(data.streak);
                 }
+                if (data && data.weeklyPlant) {
+                    updateWeeklyPlantUI(data.weeklyPlant);
+                }
                 if (data && data.notes) {
                     renderTodayNotes(data.notes);
                 }
@@ -1843,6 +2480,11 @@
                 // Cập nhật chuỗi ngày streak
                 if (data && data.streak !== undefined) {
                     updateStreakUI(data.streak);
+                }
+
+                // Cập nhật Cây Kỳ Diệu tuần này
+                if (data && data.weeklyPlant) {
+                    updateWeeklyPlantUI(data.weeklyPlant);
                 }
 
                 // Nếu đạt mốc mới thì hiện Popup chúc mừng từ Server
@@ -2071,6 +2713,9 @@
                 updateUI(0);
                 if (data && data.streak !== undefined) {
                     updateStreakUI(data.streak);
+                }
+                if (data && data.weeklyPlant) {
+                    updateWeeklyPlantUI(data.weeklyPlant);
                 }
                 renderTodayNotes([]);
                 renderTodayTimeline([]);
