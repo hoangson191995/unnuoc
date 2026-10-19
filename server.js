@@ -53,10 +53,10 @@ const dayWaterSchema = new mongoose.Schema({
 });
 const DayWater = mongoose.model('DayWater', dayWaterSchema);
 
-// Schema lưu số lần dùng vé cứu chuỗi (tối đa 3 lần / tháng)
+// Schema lưu số lần dùng vé cứu chuỗi (tối đa 5 lần / tháng)
 const streakRecoverySchema = new mongoose.Schema({
     monthYear: { type: String, required: true, unique: true }, // VD: "10/2026"
-    usedCount: { type: Number, default: 0 },                    // Số lần đã dùng trong tháng này (tối đa 3)
+    usedCount: { type: Number, default: 0 },                    // Số lần đã dùng trong tháng này (tối đa 5)
     history: [{
         dateString: String,
         recoveredAt: { type: Date, default: Date.now }
@@ -84,7 +84,7 @@ async function getMonthlyRecoveryInfo() {
         record = new StreakRecovery({ monthYear, usedCount: 0, history: [] });
         await record.save();
     }
-    const maxPerMonth = 3;
+    const maxPerMonth = 5;
     const remaining = Math.max(0, maxPerMonth - record.usedCount);
     return {
         monthYear,
@@ -553,7 +553,7 @@ app.post('/api/water/reset', async (req, res) => {
     }
 });
 
-// API khôi phục chuỗi bằng vé cứu chuỗi của Ăm chã (tối đa 3 lần/tháng)
+// API khôi phục chuỗi bằng vé cứu chuỗi của Ăm chã (tối đa 5 lần/tháng)
 app.post('/api/water/streak/recover', async (req, res) => {
     try {
         const todayStr = getTodayVN();
@@ -563,8 +563,8 @@ app.post('/api/water/streak/recover', async (req, res) => {
             recoveryRecord = new StreakRecovery({ monthYear, usedCount: 0, history: [] });
         }
 
-        if (recoveryRecord.usedCount >= 3) {
-            return res.status(400).json({ error: "Tháng này bà chã đã dùng hết 3 lần cứu chuỗi rồi nè! Tháng sau sẽ có thêm vé mới nha 💕" });
+        if (recoveryRecord.usedCount >= 5) {
+            return res.status(400).json({ error: "Tháng này bà chã đã dùng hết 5 lần cứu chuỗi rồi nè! Tháng sau sẽ có thêm vé mới nha 💕" });
         }
 
         // Xác định ngày cần cứu (mặc định là ngày hôm qua)
