@@ -46,14 +46,61 @@ const dayWaterSchema = new mongoose.Schema({
     checked1300: { type: Boolean, default: false },             // Đã hiện popup 1300ml chưa
     checked1500: { type: Boolean, default: false },             // Đã hiện popup 1500ml chưa
     checked2000: { type: Boolean, default: false },             // Đã hiện popup 2000ml chưa
+    isRecovered: { type: Boolean, default: false },             // Đã dùng vé cứu chuỗi chưa
+    recoveredAt: { type: Date },                                // Thời điểm dùng vé cứu
     notes: { type: [String], default: [] },                     // Ghi chú món uống ngoài nước lọc
     timeline: { type: [timelineItemSchema], default: [] }       // Dòng thời gian trong ngày
 });
 const DayWater = mongoose.model('DayWater', dayWaterSchema);
 
+// Schema lưu số lần dùng vé cứu chuỗi (tối đa 3 lần / tháng)
+const streakRecoverySchema = new mongoose.Schema({
+    monthYear: { type: String, required: true, unique: true }, // VD: "10/2026"
+    usedCount: { type: Number, default: 0 },                    // Số lần đã dùng trong tháng này (tối đa 3)
+    history: [{
+        dateString: String,
+        recoveredAt: { type: Date, default: Date.now }
+    }]
+});
+const StreakRecovery = mongoose.model('StreakRecovery', streakRecoverySchema);
+
 // Hàm lấy ngày theo múi giờ Việt Nam (UTC+7) để tránh lệch ngày do server Render chạy giờ UTC
 function getTodayVN() {
     return new Date().toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+}
+
+// Hàm lấy tháng/năm theo múi giờ Việt Nam (VD: "10/2026")
+function getMonthYearVN() {
+    const today = getTodayVN();
+    const parts = today.split('/');
+    return `${parts[1]}/${parts[2]}`;
+}
+
+// Hàm lấy thông tin vé cứu chuỗi trong tháng hiện tại
+async function getMonthlyRecoveryInfo() {
+    const monthYear = getMonthYearVN();
+    let record = await StreakRecovery.findOne({ monthYear });
+    if (!record) {
+        record = new StreakRecovery({ monthYear, usedCount: 0, history: [] });
+        await record.save();
+    }
+    const maxPerMonth = 3;
+    const remaining = Math.max(0, maxPerMonth - record.usedCount);
+    return {
+        monthYear,
+        maxPerMonth,
+        usedCount: record.usedCount,
+        remaining,
+        history: record.history
+    };
+}
+
+// Hàm chuẩn hóa chuỗi ngày d/m/y
+function normalizeDateStr(str) {
+    if (!str) return '';
+    const parts = str.split('/').map(Number);
+    if (parts.length !== 3 || parts.some(isNaN)) return str;
+    return `${parts[0]}/${parts[1]}/${parts[2]}`;
 }
 
 // Hàm lấy giờ phút theo múi giờ Việt Nam (UTC+7) cho dòng thời gian
@@ -66,55 +113,117 @@ function getNowTimeVN() {
     });
 }
 
-// Hàm tính chuỗi ngày uống nước liên tiếp (mỗi ngày >= 1500ml)
+// Hàm tính chuỗi ngày uống nước liên tiếp (mỗi ngày >= 1500ml HOẶC được dùng vé cứu chuỗi)
 function calculateStreak(records, todayStr) {
     const recordMap = new Map();
-    records.forEach(r => recordMap.set(r.dateString, r.amount));
+    const recoveredSet = new Set();
+    records.forEach(r => {
+        if (r.dateString) {
+            const key = normalizeDateStr(r.dateString);
+            recordMap.set(key, r.amount || 0);
+            if (r.isRecovered) recoveredSet.add(key);
+        }
+    });
 
     function parseDate(str) {
         const [d, m, y] = str.split('/').map(Number);
         return new Date(y, m - 1, d);
     }
 
-    function formatDate(d) {
-        return d.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+    function formatDateKey(d) {
+        return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+    }
+
+    const STREAK_THRESHOLD = 1500;
+    function isQualified(d) {
+        const key = formatDateKey(d);
+        return (recordMap.get(key) || 0) >= STREAK_THRESHOLD || recoveredSet.has(key);
     }
 
     const todayDate = parseDate(todayStr);
-    const todayAmount = recordMap.get(todayStr) || 0;
-    const STREAK_THRESHOLD = 1500;
+    const todayQualified = isQualified(todayDate);
 
     let streak = 0;
     let checkDate = new Date(todayDate);
 
-    if (todayAmount >= STREAK_THRESHOLD) {
+    if (todayQualified) {
         streak = 1;
         checkDate.setDate(checkDate.getDate() - 1);
-        while (true) {
-            const dateStr = formatDate(checkDate);
-            const amount = recordMap.get(dateStr) || 0;
-            if (amount >= STREAK_THRESHOLD) {
-                streak++;
-                checkDate.setDate(checkDate.getDate() - 1);
-            } else {
-                break;
-            }
+        while (isQualified(checkDate)) {
+            streak++;
+            checkDate.setDate(checkDate.getDate() - 1);
         }
     } else {
         checkDate.setDate(checkDate.getDate() - 1);
-        while (true) {
-            const dateStr = formatDate(checkDate);
-            const amount = recordMap.get(dateStr) || 0;
-            if (amount >= STREAK_THRESHOLD) {
-                streak++;
-                checkDate.setDate(checkDate.getDate() - 1);
-            } else {
-                break;
-            }
+        while (isQualified(checkDate)) {
+            streak++;
+            checkDate.setDate(checkDate.getDate() - 1);
         }
     }
 
     return streak;
+}
+
+// Kiểm tra xem chuỗi có vừa bị đứt hôm qua không để đề xuất dùng vé cứu chuỗi
+function checkStreakRecoveryStatus(records, todayStr, remainingRecoveries) {
+    const recordMap = new Map();
+    const recoveredSet = new Set();
+    records.forEach(r => {
+        if (r.dateString) {
+            const key = normalizeDateStr(r.dateString);
+            recordMap.set(key, r.amount || 0);
+            if (r.isRecovered) recoveredSet.add(key);
+        }
+    });
+
+    const [d, m, y] = todayStr.split('/').map(Number);
+    const todayDate = new Date(y, m - 1, d);
+
+    function formatDateKey(dt) {
+        return `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`;
+    }
+
+    function formatDisplayDate(dt) {
+        return `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()}`;
+    }
+
+    const STREAK_THRESHOLD = 1500;
+    function isQualified(dt) {
+        const key = formatDateKey(dt);
+        return (recordMap.get(key) || 0) >= STREAK_THRESHOLD || recoveredSet.has(key);
+    }
+
+    const yesterdayDate = new Date(todayDate);
+    yesterdayDate.setDate(todayDate.getDate() - 1);
+    const yesterdayQualified = isQualified(yesterdayDate);
+    const yesterdayDisplay = formatDisplayDate(yesterdayDate);
+
+    // Nếu hôm qua đã đạt chuẩn rồi thì chuỗi không bị đứt
+    if (yesterdayQualified) {
+        return {
+            canRecover: false,
+            targetDateStr: null,
+            brokenStreak: 0
+        };
+    }
+
+    // Hôm qua chưa đạt chuẩn: kiểm tra xem trước hôm qua có chuỗi >= 1 ngày không
+    let checkDate = new Date(yesterdayDate);
+    checkDate.setDate(yesterdayDate.getDate() - 1);
+    let previousStreak = 0;
+    while (isQualified(checkDate)) {
+        previousStreak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+    }
+
+    // Có thể cứu chuỗi nếu còn vé trong tháng và trước đó đã có chuỗi >= 1 ngày bị đứt
+    const canRecover = remainingRecoveries > 0 && previousStreak >= 1;
+
+    return {
+        canRecover,
+        targetDateStr: yesterdayDisplay,
+        brokenStreak: previousStreak
+    };
 }
 
 // Danh mục 8 loài cây kỳ diệu bí ẩn xoay vòng theo tuần
@@ -139,9 +248,12 @@ function calculateWeeklyPlant(allRecords, todayStr) {
     }
 
     const recordMap = new Map();
+    const recoveredSet = new Set();
     allRecords.forEach(r => {
         if (r.dateString) {
-            recordMap.set(normalizeDateStr(r.dateString), r.amount);
+            const key = normalizeDateStr(r.dateString);
+            recordMap.set(key, r.amount);
+            if (r.isRecovered) recoveredSet.add(key);
         }
     });
 
@@ -170,7 +282,7 @@ function calculateWeeklyPlant(allRecords, todayStr) {
         const normKey = `${curDate.getDate()}/${curDate.getMonth() + 1}/${curDate.getFullYear()}`;
         const displayDateStr = `${String(curDate.getDate()).padStart(2, '0')}/${String(curDate.getMonth() + 1).padStart(2, '0')}/${curDate.getFullYear()}`;
         const amount = recordMap.get(normKey) || 0;
-        const isCompleted = amount >= 1500;
+        const isCompleted = amount >= 1500 || recoveredSet.has(normKey);
         if (isCompleted) completedDays++;
 
         const isToday = (normKey === normalizeDateStr(todayStr));
@@ -206,9 +318,25 @@ function calculateWeeklyPlant(allRecords, todayStr) {
     };
 }
 
+// Hàm gom dữ liệu chung trả về cho Frontend (streak, cây tuần, vé cứu chuỗi)
+async function getCommonWaterData(allRecords, todayStr) {
+    const streak = calculateStreak(allRecords, todayStr);
+    const weeklyPlant = calculateWeeklyPlant(allRecords, todayStr);
+    const recoveryInfo = await getMonthlyRecoveryInfo();
+    const recoveryStatus = checkStreakRecoveryStatus(allRecords, todayStr, recoveryInfo.remaining);
+    return {
+        streak,
+        weeklyPlant,
+        streakRecovery: {
+            ...recoveryInfo,
+            ...recoveryStatus
+        }
+    };
+}
+
 // --- 2. CÁC API ROUTING ---
 
-// API lấy dữ liệu ngày hôm nay (kèm chuỗi streak & cây tuần)
+// API lấy dữ liệu ngày hôm nay (kèm chuỗi streak, cây tuần, vé cứu chuỗi)
 app.get('/api/water/today', async (req, res) => {
     try {
         const todayStr = getTodayVN();
@@ -220,10 +348,9 @@ app.get('/api/water/today', async (req, res) => {
         }
 
         const allRecords = await DayWater.find();
-        const streak = calculateStreak(allRecords, todayStr);
-        const weeklyPlant = calculateWeeklyPlant(allRecords, todayStr);
+        const commonData = await getCommonWaterData(allRecords, todayStr);
 
-        res.status(200).json({ ...record.toObject(), streak, weeklyPlant });
+        res.status(200).json({ ...record.toObject(), ...commonData });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -270,9 +397,8 @@ app.post('/api/water/add', async (req, res) => {
 
         await record.save();
         const allRecords = await DayWater.find();
-        const streak = calculateStreak(allRecords, todayStr);
-        const weeklyPlant = calculateWeeklyPlant(allRecords, todayStr);
-        res.status(200).json({ record, milestoneReached, streak, weeklyPlant });
+        const commonData = await getCommonWaterData(allRecords, todayStr);
+        res.status(200).json({ record, milestoneReached, ...commonData });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -394,9 +520,8 @@ app.post('/api/water/timeline/delete', async (req, res) => {
         await record.save();
 
         const allRecords = await DayWater.find();
-        const streak = calculateStreak(allRecords, todayStr);
-        const weeklyPlant = calculateWeeklyPlant(allRecords, todayStr);
-        res.status(200).json({ message: "Đã xóa mục thành công!", record, streak, weeklyPlant });
+        const commonData = await getCommonWaterData(allRecords, todayStr);
+        res.status(200).json({ message: "Đã xóa mục thành công!", record, ...commonData });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -421,9 +546,70 @@ app.post('/api/water/reset', async (req, res) => {
 
         await record.save();
         const allRecords = await DayWater.find();
-        const streak = calculateStreak(allRecords, todayStr);
-        const weeklyPlant = calculateWeeklyPlant(allRecords, todayStr);
-        res.status(200).json({ message: "Đã đặt lại về 0 ml thành công!", record, streak, weeklyPlant });
+        const commonData = await getCommonWaterData(allRecords, todayStr);
+        res.status(200).json({ message: "Đã đặt lại về 0 ml thành công!", record, ...commonData });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// API khôi phục chuỗi bằng vé cứu chuỗi của Ăm chã (tối đa 3 lần/tháng)
+app.post('/api/water/streak/recover', async (req, res) => {
+    try {
+        const todayStr = getTodayVN();
+        const monthYear = getMonthYearVN();
+        let recoveryRecord = await StreakRecovery.findOne({ monthYear });
+        if (!recoveryRecord) {
+            recoveryRecord = new StreakRecovery({ monthYear, usedCount: 0, history: [] });
+        }
+
+        if (recoveryRecord.usedCount >= 3) {
+            return res.status(400).json({ error: "Tháng này bà chã đã dùng hết 3 lần cứu chuỗi rồi nè! Tháng sau sẽ có thêm vé mới nha 💕" });
+        }
+
+        // Xác định ngày cần cứu (mặc định là ngày hôm qua)
+        const [td, tm, ty] = todayStr.split('/').map(Number);
+        const todayDate = new Date(ty, tm - 1, td);
+        const yesterdayDate = new Date(todayDate);
+        yesterdayDate.setDate(todayDate.getDate() - 1);
+        const targetDateStr = `${String(yesterdayDate.getDate()).padStart(2, '0')}/${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}/${yesterdayDate.getFullYear()}`;
+
+        let dayRecord = await DayWater.findOne({ dateString: targetDateStr });
+        if (!dayRecord) {
+            dayRecord = new DayWater({
+                dateString: targetDateStr,
+                amount: 0,
+                isRecovered: true,
+                recoveredAt: new Date(),
+                notes: [],
+                timeline: []
+            });
+        } else {
+            if (dayRecord.isRecovered) {
+                return res.status(400).json({ error: "Ngày này đã được dùng vé cứu chuỗi rồi nha bà chã!" });
+            }
+            dayRecord.isRecovered = true;
+            dayRecord.recoveredAt = new Date();
+        }
+
+        await dayRecord.save();
+
+        recoveryRecord.usedCount += 1;
+        recoveryRecord.history.push({
+            dateString: targetDateStr,
+            recoveredAt: new Date()
+        });
+        await recoveryRecord.save();
+
+        const allRecords = await DayWater.find();
+        const todayRecord = await DayWater.findOne({ dateString: todayStr });
+        const commonData = await getCommonWaterData(allRecords, todayStr);
+
+        res.status(200).json({
+            message: `Ăm chã đã dùng 1 vé cứu chuỗi cho ngày ${targetDateStr}! Chuỗi của bà chã đã được nối lại rực rỡ rùi nhee! 💖🎉`,
+            record: todayRecord,
+            ...commonData
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -453,9 +639,12 @@ app.get('/api/water/weekly-collection', async (req, res) => {
         }
 
         const recordMap = new Map();
+        const recoveredSet = new Set();
         allRecords.forEach(r => {
             if (r.dateString) {
-                recordMap.set(normalizeDateStr(r.dateString), r.amount);
+                const key = normalizeDateStr(r.dateString);
+                recordMap.set(key, r.amount);
+                if (r.isRecovered) recoveredSet.add(key);
             }
         });
 
@@ -506,7 +695,7 @@ app.get('/api/water/weekly-collection', async (req, res) => {
                 const cur = new Date(monday);
                 cur.setDate(monday.getDate() + i);
                 const normKey = `${cur.getDate()}/${cur.getMonth() + 1}/${cur.getFullYear()}`;
-                if ((recordMap.get(normKey) || 0) >= 1500) {
+                if ((recordMap.get(normKey) || 0) >= 1500 || recoveredSet.has(normKey)) {
                     completedDays++;
                 }
             }

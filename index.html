@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bà chã nhớ uống nước 🌸</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👧</text></svg>">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -1583,6 +1584,224 @@
         body.theme-night .collection-card-meta {
             color: #6B7280;
         }
+
+        /* ====================================================
+           TÍNH NĂNG VÉ CỨU CHUỖI (STREAK RESCUE TICKET)
+           ==================================================== */
+        .streak-ticket-badge {
+            font-size: 11px;
+            background: #FEF3C7;
+            color: #B45309;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-weight: 700;
+            margin-left: 4px;
+            border: 1px solid #FCD34D;
+            white-space: nowrap;
+        }
+
+        body.theme-night .streak-ticket-badge {
+            background: #78350F;
+            color: #FDE68A;
+            border-color: #B45309;
+        }
+
+        .streak-rescue-content {
+            max-width: 380px !important;
+            padding: 22px 18px !important;
+        }
+
+        .streak-status-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+            border: 1.5px solid #FED7AA;
+            border-radius: 16px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        body.theme-night .streak-status-card {
+            background: linear-gradient(135deg, #431407 0%, #291007 100%);
+            border-color: #7C2D12;
+        }
+
+        .streak-status-icon {
+            font-size: 32px;
+            line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(255, 69, 0, 0.25));
+        }
+
+        .streak-status-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #C2410C;
+        }
+
+        body.theme-night .streak-status-title {
+            color: #FB923C;
+        }
+
+        .streak-status-desc {
+            font-size: 11.5px;
+            color: #7C2D12;
+            margin-top: 2px;
+            line-height: 1.35;
+        }
+
+        body.theme-night .streak-status-desc {
+            color: #FDBA74;
+        }
+
+        .streak-ticket-card {
+            background: #FDF4FF;
+            border: 1.5px solid #F0ABFC;
+            border-radius: 16px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+            text-align: left;
+        }
+
+        body.theme-night .streak-ticket-card {
+            background: #2E1065;
+            border-color: #581C87;
+        }
+
+        .streak-ticket-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .streak-ticket-tag {
+            font-size: 12.5px;
+            font-weight: bold;
+            color: #86198F;
+        }
+
+        body.theme-night .streak-ticket-tag {
+            color: #F0ABFC;
+        }
+
+        .streak-ticket-count {
+            background: #FAE8FF;
+            color: #A21CAF;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+            border: 1px solid #E879F9;
+        }
+
+        body.theme-night .streak-ticket-count {
+            background: #4A044E;
+            color: #F5D0FE;
+            border-color: #86198F;
+        }
+
+        .streak-ticket-info {
+            font-size: 11.5px;
+            color: #701A75;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        body.theme-night .streak-ticket-info {
+            color: #E879F9;
+        }
+
+        .streak-rescue-action-box {
+            background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+            border: 2px dashed #F59E0B;
+            border-radius: 16px;
+            padding: 14px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+            animation: pulseRescue 2.5s infinite;
+            margin-bottom: 6px;
+        }
+
+        body.theme-night .streak-rescue-action-box {
+            background: linear-gradient(135deg, #451A03 0%, #291007 100%);
+            border-color: #D97706;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes pulseRescue {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .rescue-alert-badge {
+            display: inline-block;
+            background: #FEE2E2;
+            color: #B91C1C;
+            font-size: 11.5px;
+            font-weight: bold;
+            padding: 3px 10px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+        }
+
+        body.theme-night .rescue-alert-badge {
+            background: #7F1D1D;
+            color: #FECACA;
+        }
+
+        .rescue-alert-text {
+            font-size: 12px;
+            color: #92400E;
+            margin: 0 0 10px 0;
+            line-height: 1.45;
+        }
+
+        body.theme-night .rescue-alert-text {
+            color: #FDE68A;
+        }
+
+        .btn-use-rescue {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 14px;
+            font-size: 13.5px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-use-rescue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(217, 119, 6, 0.45);
+        }
+
+        .btn-use-rescue:active {
+            transform: scale(0.97);
+        }
+
+        .streak-intact-box {
+            background: #F0FDF4;
+            border: 1px solid #BBF7D0;
+            color: #166534;
+            font-size: 12px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        body.theme-night .streak-intact-box {
+            background: #064E3B;
+            border-color: #059669;
+            color: #A7F3D0;
+        }
     </style>
 </head>
 
@@ -1597,9 +1816,10 @@
         <!-- Hàng hiển thị ngày và chuỗi ngày streak 🔥 -->
         <div class="header-badges">
             <div class="date-text" id="displayDate">Hôm nay: ...</div>
-            <div class="streak-badge" id="streakBadge" onclick="showStreakInfo()" title="Uống đủ từ 1500ml mỗi ngày để nối dài chuỗi!">
+            <div class="streak-badge" id="streakBadge" onclick="openStreakModal()" title="Bấm để xem chuỗi ngày & Vé cứu chuỗi!">
                 <span class="streak-icon">🔥</span>
                 <span id="streakText">Chuỗi: 0 ngày</span>
+                <span class="streak-ticket-badge" id="streakTicketBadge" title="Số vé cứu chuỗi còn lại trong tháng">🎟️ 3/3</span>
             </div>
         </div>
 
@@ -1769,6 +1989,51 @@
             <p class="collection-subtitle">Bộ sưu tập cây thần kỳ bà chã đã nuôi lớn qua từng tuần 💕</p>
             <div class="collection-list" id="weeklyCollectionList">
                 <div class="collection-loading">Đang mở kệ hoa kỳ diệu của bà chã... 🌸✨</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Vé Cứu Chuỗi của Ăm chã -->
+    <div class="modal-overlay" id="streakRescueModal" onclick="if(event.target===this) closeStreakModal()">
+        <div class="modal-content streak-rescue-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🔥 Chuỗi Ngày & Vé Cứu Chuỗi 🎟️</h2>
+                <button class="close-btn" onclick="closeStreakModal()">&times;</button>
+            </div>
+            
+            <!-- Thẻ trạng thái chuỗi -->
+            <div class="streak-status-card">
+                <div class="streak-status-icon">🔥</div>
+                <div class="streak-status-info">
+                    <div class="streak-status-title" id="rescueModalStreakTitle">Chuỗi: 0 ngày</div>
+                    <div class="streak-status-desc" id="rescueModalStreakDesc">Mỗi ngày bà chã uống từ 1500ml trở lên sẽ tạo và nối dài chuỗi ngày liên tiếp nha! 🌸</div>
+                </div>
+            </div>
+
+            <!-- Thẻ vé cứu chuỗi còn lại -->
+            <div class="streak-ticket-card">
+                <div class="streak-ticket-header">
+                    <span class="streak-ticket-tag">🎟️ Vé Cứu Chuỗi Của Ăm Chã</span>
+                    <span class="streak-ticket-count" id="rescueModalTicketCount">Còn 3 / 3 vé</span>
+                </div>
+                <p class="streak-ticket-info">
+                    Mỗi tháng bà chã có tối đa <strong>3 lần</strong> dùng vé cứu chuỗi. Khi dùng, ngày lỡ hôm qua sẽ được tính là ngày uống ngoan, chuỗi streak sẽ được nối lại và cây tuần cũng lớn thêm nha! 💕
+                </p>
+            </div>
+
+            <!-- Khung cứu chuỗi nếu hôm qua lỡ quên -->
+            <div class="streak-rescue-action-box" id="streakRescueActionBox" style="display: none;">
+                <div class="rescue-alert-badge">🥺 Chuỗi vừa bị đứt hôm qua!</div>
+                <p class="rescue-alert-text" id="rescueAlertText">
+                    Hôm qua bà chã lỡ quên uống đủ 1500ml... Nhưng đừng buồn nha, ăm chã có vé cứu chuỗi tặng bà chã nè! ✨
+                </p>
+                <button type="button" class="btn-use-rescue" id="btnUseRescue" onclick="useStreakRescueTicket()">
+                    ✨ Dùng 1 Vé Cứu Chuỗi Ngay! 💕
+                </button>
+            </div>
+
+            <div class="streak-intact-box" id="streakIntactBox" style="display: none;">
+                🌸 Chuỗi của bà chã đang rất an toàn và ngoan ngoãn! Giữ vững phong độ nha bà chã iu! ✨
             </div>
         </div>
     </div>
@@ -1976,15 +2241,18 @@
             }
         }
 
-        // --- 2. HỆ THỐNG CHUỖI NGÀY LIÊN TIẾP (STREAK) ---
+        // --- 2. HỆ THỐNG CHUỖI NGÀY LIÊN TIẾP & VÉ CỨU CHUỖI (STREAK & RESCUE) ---
+        let currentStreak = 0;
+        let currentStreakRecovery = null;
+
         function updateStreakUI(streak) {
+            currentStreak = (streak !== undefined && streak !== null) ? Number(streak) : 0;
             const streakBadge = document.getElementById('streakBadge');
             const streakText = document.getElementById('streakText');
             if (!streakBadge || !streakText) return;
 
-            const s = (streak !== undefined && streak !== null) ? Number(streak) : 0;
-            if (s > 0) {
-                streakText.innerText = `Chuỗi: ${s} ngày`;
+            if (currentStreak > 0) {
+                streakText.innerText = `Chuỗi: ${currentStreak} ngày`;
                 streakBadge.classList.add('active');
             } else {
                 streakText.innerText = `Bắt đầu chuỗi hôm nay!`;
@@ -1992,8 +2260,115 @@
             }
         }
 
+        function updateStreakRecoveryUI(recoveryData) {
+            if (!recoveryData) return;
+            currentStreakRecovery = recoveryData;
+
+            const ticketBadge = document.getElementById('streakTicketBadge');
+            if (ticketBadge) {
+                ticketBadge.innerText = `🎟️ ${recoveryData.remaining}/${recoveryData.maxPerMonth}`;
+                ticketBadge.title = `Số vé cứu chuỗi còn lại trong tháng ${recoveryData.monthYear}`;
+            }
+        }
+
+        function openStreakModal() {
+            const modal = document.getElementById('streakRescueModal');
+            if (!modal) return;
+
+            const titleEl = document.getElementById('rescueModalStreakTitle');
+            const descEl = document.getElementById('rescueModalStreakDesc');
+            const countEl = document.getElementById('rescueModalTicketCount');
+            const actionBox = document.getElementById('streakRescueActionBox');
+            const alertText = document.getElementById('rescueAlertText');
+            const intactBox = document.getElementById('streakIntactBox');
+            const btnUse = document.getElementById('btnUseRescue');
+
+            if (titleEl) {
+                titleEl.innerText = currentStreak > 0 ? `Chuỗi: ${currentStreak} ngày liên tiếp 🔥` : `Chưa có chuỗi ngày 🔥`;
+            }
+            if (descEl) {
+                descEl.innerText = currentStreak > 0 
+                    ? `Bà chã siêu ngoan! Uống đủ từ 1500ml mỗi ngày để giữ ngọn lửa tình yêu bùng cháy nha! 💕`
+                    : `Mỗi ngày bà chã uống từ 1500ml trở lên sẽ tạo và nối dài chuỗi ngày liên tiếp nha! 🌸`;
+            }
+
+            if (currentStreakRecovery) {
+                if (countEl) {
+                    countEl.innerText = `Còn ${currentStreakRecovery.remaining} / ${currentStreakRecovery.maxPerMonth} vé (Tháng ${currentStreakRecovery.monthYear})`;
+                }
+
+                if (currentStreakRecovery.canRecover && currentStreakRecovery.remaining > 0) {
+                    if (actionBox) actionBox.style.display = 'block';
+                    if (intactBox) intactBox.style.display = 'none';
+                    if (alertText) {
+                        alertText.innerHTML = `Hôm qua (<strong>${currentStreakRecovery.targetDateStr}</strong>) bà chã lỡ quên uống đủ 1500ml làm đứt chuỗi <strong>${currentStreakRecovery.brokenStreak} ngày</strong> tiếc quá... Nhưng đừng buồn nha, ăm chã có vé cứu chuỗi tặng bà chã nè! ✨`;
+                    }
+                    if (btnUse) {
+                        btnUse.innerText = `✨ Dùng 1 Vé Cứu Chuỗi (${currentStreakRecovery.remaining}/${currentStreakRecovery.maxPerMonth} vé) 💕`;
+                        btnUse.disabled = false;
+                    }
+                } else {
+                    if (actionBox) actionBox.style.display = 'none';
+                    if (intactBox) intactBox.style.display = 'block';
+                    if (intactBox) {
+                        if (currentStreakRecovery.remaining <= 0) {
+                            intactBox.innerText = `Bà chã đã dùng hết ${currentStreakRecovery.maxPerMonth} vé cứu chuỗi của tháng ${currentStreakRecovery.monthYear} rồi nè! Tháng sau sẽ có thêm vé mới nha 💕`;
+                        } else {
+                            intactBox.innerText = `🌸 Chuỗi của bà chã đang rất an toàn và ngoan ngoãn! Giữ vững phong độ nha bà chã iu! ✨`;
+                        }
+                    }
+                }
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeStreakModal() {
+            const modal = document.getElementById('streakRescueModal');
+            if (modal) modal.style.display = 'none';
+        }
+
         function showStreakInfo() {
-            alert("🔥 Chuỗi ngày ngoan ngoãn:\n\nMỗi ngày bà chã uống từ 1500ml trở lên sẽ giữ và tăng chuỗi ngày liên tiếp nha!\nCố lên mỗi ngày để chuỗi ngày càng dài nhé bà chã ưi! 💕");
+            openStreakModal();
+        }
+
+        async function useStreakRescueTicket() {
+            const btn = document.getElementById('btnUseRescue');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = 'Đang dùng vé cứu chuỗi... ✨';
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/streak/recover`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Lỗi server: ' + response.status);
+                }
+
+                if (data.streak !== undefined) updateStreakUI(data.streak);
+                if (data.streakRecovery) updateStreakRecoveryUI(data.streakRecovery);
+                if (data.weeklyPlant) updateWeeklyPlantUI(data.weeklyPlant);
+
+                // Hiển thị chúc mừng
+                showAchievement("🎉 Cứu Chuỗi Thành Công!", data.message || "Chuỗi của bà chã đã được nối lại rùi nè! 💕");
+                closeStreakModal();
+
+                // Cập nhật linh vật
+                const mascotText = document.getElementById('mascotText');
+                if (mascotText) {
+                    mascotText.innerText = "Yeee! Chuỗi ngày của bà chã đã được cứu rùi! Ăm chã iu bà chã nhìu nhìu! 💖✨";
+                }
+            } catch (err) {
+                console.error("Lỗi cứu chuỗi:", err);
+                alert(err.message || "Không thể cứu chuỗi lúc này, bà chã thử lại sau nha!");
+            } finally {
+                if (btn) btn.disabled = false;
+            }
         }
 
         // --- 3. HỆ THỐNG DÒNG THỜI GIAN UỐNG NƯỚC (TIMELINE - TÍNH NĂNG 5) ---
@@ -2068,6 +2443,9 @@
                     updateUI(data.record.amount);
                     if (data.streak !== undefined) {
                         updateStreakUI(data.streak);
+                    }
+                    if (data.streakRecovery) {
+                        updateStreakRecoveryUI(data.streakRecovery);
                     }
                     if (data.weeklyPlant) {
                         updateWeeklyPlantUI(data.weeklyPlant);
@@ -2442,6 +2820,16 @@
                 if (data && data.streak !== undefined) {
                     updateStreakUI(data.streak);
                 }
+                if (data && data.streakRecovery) {
+                    updateStreakRecoveryUI(data.streakRecovery);
+                    // Tự động mở popup nhắc nhở dùng vé khi vừa bị mất chuỗi hôm qua và còn vé
+                    if (data.streakRecovery.canRecover && !sessionStorage.getItem('streakRescuePrompted_' + data.streakRecovery.targetDateStr)) {
+                        sessionStorage.setItem('streakRescuePrompted_' + data.streakRecovery.targetDateStr, 'true');
+                        setTimeout(() => {
+                            openStreakModal();
+                        }, 800);
+                    }
+                }
                 if (data && data.weeklyPlant) {
                     updateWeeklyPlantUI(data.weeklyPlant);
                 }
@@ -2486,6 +2874,11 @@
                 // Cập nhật chuỗi ngày streak
                 if (data && data.streak !== undefined) {
                     updateStreakUI(data.streak);
+                }
+
+                // Cập nhật vé cứu chuỗi
+                if (data && data.streakRecovery) {
+                    updateStreakRecoveryUI(data.streakRecovery);
                 }
 
                 // Cập nhật Cây Kỳ Diệu tuần này
@@ -2722,6 +3115,9 @@
                 }
                 if (data && data.weeklyPlant) {
                     updateWeeklyPlantUI(data.weeklyPlant);
+                }
+                if (data && data.streakRecovery) {
+                    updateStreakRecoveryUI(data.streakRecovery);
                 }
                 renderTodayNotes([]);
                 renderTodayTimeline([]);
